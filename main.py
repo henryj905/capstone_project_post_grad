@@ -54,11 +54,11 @@ def rushing_yards_in_season(year):
         how="left"
     )
     rushing_yards = seasonal_with_names[seasonal_with_names["rushing_yards"] > 0]
-    return rushing_yards[["player_name", "recent_team", "position", "rushing_yards"]].sort_values("recent_team")
+    rushing_yards = rushing_yards[["player_name", "recent_team", "position", "rushing_yards"]]
+    return rushing_yards
 
 if __name__ == "__main__":
-    user_input = input("select option: \nPlayers\nSchedules\nQuit\nPassing Yards\n\n")
-    user_input = user_input.upper()
+    user_input = input("select option: \nPlayers\nSchedules\nQuit\nPassing Yards\nRushing Yards\n\n").upper()
 
     if user_input == "PLAYERS":
         year = int(input("Enter season (2017-2024):\n"))
@@ -80,9 +80,30 @@ if __name__ == "__main__":
         print(schedules)
         print("Schedule loaded")
     elif user_input == "PASSING YARDS":
-        year = int(input("Enter season(2017-2024):\n"))
+        year = int(input("Enter season (2017-2024):\n"))
         passing = passing_yards_in_season(year)
-        print(passing)
-        print("Passing Yards Shown:\n")
+        sort_by = input("Sort list by: \nName\nTeam\nPosition\nYards\n\n").upper()
+        if sort_by == "NAME":
+            print(passing.sort_values("player_name"))
+        elif sort_by == "TEAM":
+            print(passing.sort_values("recent_team"))
+        elif sort_by == "POSITION":
+            print(passing.sort_values("position"))
+        elif sort_by == "YARDS":
+            print(passing.sort_values("passing_yards"))
+        print("Passing Yards Shown\n")
+    elif user_input =="RUSHING YARDS":
+        year = int(input("Enter season (2017-2024):\n"))
+        rushing = rushing_yards_in_season(year)
+        sort_by = input("Sort list by: \nName\nTeam\nPosition\nYards\n\n").upper()
+        if sort_by == "NAME":
+            print(rushing.sort_values("player_name"))
+        elif sort_by == "TEAM":
+            print(rushing.sort_values("recent_team"))
+        elif sort_by == "POSITION":
+            print(rushing.sort_values("position"))
+        elif sort_by == "YARDS":
+            print(rushing.sort_values("rushing_yards"))
+        print("Rushing Yards Shown")
     else:
-        print("Invalid input. Please type PLAYERS, SCHEDULES, PASSING YARDS, or QUIT.")
+        print("Invalid input. Please type PLAYERS, SCHEDULES, PASSING YARDS, RUSHING YARDS, or QUIT.")
