@@ -43,33 +43,46 @@ def passing_yards_in_season(year):
     passing_yards = seasonal_with_names[seasonal_with_names["passing_yards"] > 0]
     return passing_yards[["player_name","recent_team","position", "passing_yards"]].sort_values("recent_team")
 
+def rushing_yards_in_season(year):
+    pd.set_option('display.max_rows', None)
+    seasonal_data = nfl.import_seasonal_data([year])
+    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team", "position"])
+    player_names = weekly.drop_duplicates(subset="player_id")
+    seasonal_with_names = seasonal_data.merge(
+        player_names,
+        on="player_id",
+        how="left"
+    )
+    rushing_yards = seasonal_with_names[seasonal_with_names["rushing_yards"] > 0]
+    return rushing_yards[["player_name", "recent_team", "position", "rushing_yards"]].sort_values("recent_team")
+
 if __name__ == "__main__":
-        user_input = input("select option: \nPlayers\nSchedules\nQuit\nPassing Yards\n\n")
-        user_input = user_input.upper()
+    user_input = input("select option: \nPlayers\nSchedules\nQuit\nPassing Yards\n\n")
+    user_input = user_input.upper()
 
-        if user_input == "PLAYERS":
-            year = int(input("Enter season (2017-2024):\n"))
-            players = player_list(year)
+    if user_input == "PLAYERS":
+        year = int(input("Enter season (2017-2024):\n"))
+        players = player_list(year)
 
-            if os.path.exists('nfl_players.xlsx'):
-                os.remove('nfl_players.xlsx')
-                print(f"{'nfl_players.xlsx'} existed and was deleted.")
-            else:
-                print(f"{'nfl_players.xlsx'} does not exist, creating new file.")
-
-            players.to_excel('nfl_players.xlsx', index=False)
-            print("File saved.")
-
-            print("done")
-        elif user_input == "SCHEDULES":
-            year = int(input("Enter season (2017-2024):\n"))
-            schedules = team_schedule(year)
-            print(schedules)
-            print("Schedule loaded")
-        elif user_input == "PASSING YARDS":
-            year = int(input("Enter season(2017-2024):\n"))
-            passing = passing_yards_in_season(year)
-            print(passing)
-            print("Passing Yards Shown:\n")
+        if os.path.exists('nfl_players.xlsx'):
+            os.remove('nfl_players.xlsx')
+            print(f"{'nfl_players.xlsx'} existed and was deleted.")
         else:
-            print("Invalid input. Please type PLAYERS, SCHEDULES, or QUIT.")
+            print(f"{'nfl_players.xlsx'} does not exist, creating new file.")
+
+        players.to_excel('nfl_players.xlsx', index=False)
+        print("File saved.")
+
+        print("done")
+    elif user_input == "SCHEDULES":
+        year = int(input("Enter season (2017-2024):\n"))
+        schedules = team_schedule(year)
+        print(schedules)
+        print("Schedule loaded")
+    elif user_input == "PASSING YARDS":
+        year = int(input("Enter season(2017-2024):\n"))
+        passing = passing_yards_in_season(year)
+        print(passing)
+        print("Passing Yards Shown:\n")
+    else:
+        print("Invalid input. Please type PLAYERS, SCHEDULES, PASSING YARDS, or QUIT.")
