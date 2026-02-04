@@ -1,7 +1,8 @@
 import nfl_data_py as nfl
 import os
+import pandas as pd
 
-def player_info(year):
+def player_list(year):
     print("Getting info")
 
     depth_charts = nfl.import_depth_charts([year])
@@ -29,14 +30,26 @@ def team_schedule(year):
     schedule = games[["week", "away_team", "home_team", "location"]].to_string(index=False)
     return schedule
 
+def passing_yards_in_season(year):
+    pd.set_option('display.max_rows', None)
+    seasonal_data = nfl.import_seasonal_data([year])
+    weekly = nfl.import_weekly_data([year], columns=["player_id","player_name", "recent_team", "position"])
+    player_names = weekly.drop_duplicates(subset="player_id")
+    seasonal_with_names = seasonal_data.merge(
+        player_names,
+        on="player_id",
+        how="left"
+    )
+    passing_yards = seasonal_with_names[seasonal_with_names["passing_yards"] > 0]
+    return passing_yards[["player_name","recent_team","position", "passing_yards"]].sort_values("recent_team")
 
 if __name__ == "__main__":
-        user_input = input("select option: \nPlayers\nSchedules\nQuit\n\n")
+        user_input = input("select option: \nPlayers\nSchedules\nQuit\nPassing Yards\n\n")
         user_input = user_input.upper()
 
         if user_input == "PLAYERS":
-            year = int(input("Enter season (2000-2024):\n"))
-            players = player_info(year)
+            year = int(input("Enter season (2017-2024):\n"))
+            players = player_list(year)
 
             if os.path.exists('nfl_players.xlsx'):
                 os.remove('nfl_players.xlsx')
@@ -49,10 +62,14 @@ if __name__ == "__main__":
 
             print("done")
         elif user_input == "SCHEDULES":
-            year = int(input("Enter season (2000-2024):\n"))
+            year = int(input("Enter season (2017-2024):\n"))
             schedules = team_schedule(year)
             print(schedules)
             print("Schedule loaded")
-
+        elif user_input == "PASSING YARDS":
+            year = int(input("Enter season(2017-2024):\n"))
+            passing = passing_yards_in_season(year)
+            print(passing)
+            print("Passing Yards Shown:\n")
         else:
             print("Invalid input. Please type PLAYERS, SCHEDULES, or QUIT.")
