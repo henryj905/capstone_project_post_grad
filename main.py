@@ -57,8 +57,24 @@ def rushing_yards_in_season(year):
     rushing_yards = rushing_yards[["player_name", "recent_team", "position", "rushing_yards"]]
     return rushing_yards
 
+def attempts_completions(year):
+    pd.set_option('display.max_rows', None)
+    seasonal_data = nfl.import_seasonal_data([2024])
+    weekly = nfl.import_weekly_data([2024], columns=["player_id", "player_name"])
+    player_names = weekly.drop_duplicates(subset="player_id")
+    seasonal_with_names = seasonal_data.merge(
+        player_names,
+        on="player_id",
+        how="left"
+    )
+    percentage = seasonal_with_names[seasonal_with_names["attempts"] > 0]
+    percentage = percentage[["player_name", "completions", "attempts"]]
+    percentage["completion_pct"] = (percentage["completions"] / percentage["attempts"] * 100).round(2)
+    percentage = percentage.sort_values("attempts")
+    return percentage
+
 if __name__ == "__main__":
-    user_input = input("select option: \nPlayers\nSchedules\nQuit\nPassing Yards\nRushing Yards\n\n").upper()
+    user_input = input("select option: \nPlayers\nSchedules\nQuit\nPassing Yards\nRushing Yards\nCompletion Percentage\n\n").upper()
 
     if user_input == "PLAYERS":
         year = int(input("Enter season (2017-2024):\n"))
@@ -105,5 +121,9 @@ if __name__ == "__main__":
         elif sort_by == "YARDS":
             print(rushing.sort_values("rushing_yards"))
         print("Rushing Yards Shown")
+    elif user_input == "COMPLETION PERCENTAGE":
+        year = (int(input("Enter season (2017-2024):\n")))
+        percentage = attempts_completions(year)
+        print(percentage)
     else:
-        print("Invalid input. Please type PLAYERS, SCHEDULES, PASSING YARDS, RUSHING YARDS, or QUIT.")
+        print("Invalid input. Please select from options or QUIT.")
