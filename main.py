@@ -43,8 +43,9 @@ def passing_yards_in_season(year):
     passing_yards = seasonal_with_names[seasonal_with_names["passing_yards"] > 0]
     return passing_yards[["player_name","recent_team","position", "passing_yards"]].sort_values("recent_team")
 
-def rushing_yards_in_season(year):
+def rushing_stats(year):
     pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
     seasonal_data = nfl.import_seasonal_data([year])
     weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team", "position"])
     player_names = weekly.drop_duplicates(subset="player_id")
@@ -54,8 +55,8 @@ def rushing_yards_in_season(year):
         how="left"
     )
     rushing_yards = seasonal_with_names[seasonal_with_names["rushing_yards"] > 0]
-    rushing_yards = rushing_yards[["player_name", "recent_team", "position", "rushing_yards"]]
-    return rushing_yards
+    rushing_yards = rushing_yards[["player_name", "recent_team", "position", "carries", "rushing_yards", "rushing_tds"]]
+    return rushing_yards.to_string(index=False)
 
 def attempts_completions(year):
     pd.set_option('display.max_rows', None)
@@ -136,28 +137,12 @@ if __name__ == "__main__":
     elif user_input == "PASSING YARDS":
         year = int(input("Enter season (2017-2024):\n"))
         passing = passing_yards_in_season(year)
-        sort_by = input("Sort list by: \nName\nTeam\nPosition\nYards\n\n").upper()
-        if sort_by == "NAME":
-            print(passing.sort_values("player_name"))
-        elif sort_by == "TEAM":
-            print(passing.sort_values("recent_team"))
-        elif sort_by == "POSITION":
-            print(passing.sort_values("position"))
-        elif sort_by == "YARDS":
-            print(passing.sort_values("passing_yards"))
+        print(passing)
         print("Passing Yards Shown\n")
-    elif user_input =="RUSHING YARDS":
+    elif user_input =="RUSHING STATS":
         year = int(input("Enter season (2017-2024):\n"))
-        rushing = rushing_yards_in_season(year)
-        sort_by = input("Sort list by: \nName\nTeam\nPosition\nYards\n\n").upper()
-        if sort_by == "NAME":
-            print(rushing.sort_values("player_name"))
-        elif sort_by == "TEAM":
-            print(rushing.sort_values("recent_team"))
-        elif sort_by == "POSITION":
-            print(rushing.sort_values("position"))
-        elif sort_by == "YARDS":
-            print(rushing.sort_values("rushing_yards"))
+        rushing = rushing_stats(year)
+        print(rushing)
         print("Rushing Yards Shown")
     elif user_input == "COMPLETION PERCENTAGE":
         year = (int(input("Enter season (2017-2024):\n")))
