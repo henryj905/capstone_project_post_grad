@@ -73,8 +73,46 @@ def attempts_completions(year):
     percentage = percentage.sort_values("attempts")
     return percentage
 
+def TD_INT_ratio(year):
+    pd.set_option('display.max_rows', None)
+    seasonal_data = nfl.import_seasonal_data([year])
+    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name"])
+    player_names = weekly.drop_duplicates(subset="player_id")
+    seasonal_with_names = seasonal_data.merge(
+        player_names,
+        on="player_id",
+        how="left"
+    )
+    TDI = seasonal_with_names[seasonal_with_names["passing_tds"] > 0]
+    TDI = TDI[["player_name", "passing_tds", "interceptions"]]
+
+    TDI["ratio"] = (TDI["passing_tds"] / TDI["interceptions"]).round(2)
+    TDI.loc[TDI["interceptions"] == 0, "ratio"] = "NO INT"
+    TDI = TDI.sort_values("passing_tds")
+    return TDI
+
+def receiving_stats(year):
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+
+    seasonal_data = nfl.import_seasonal_data([2024])
+    weekly = nfl.import_weekly_data([2024], columns=["player_id", "player_name"])
+    player_names = weekly.drop_duplicates(subset="player_id")
+    seasonal_with_names = seasonal_data.merge(
+        player_names,
+        on="player_id",
+        how="left"
+    )
+    YAC = seasonal_with_names[seasonal_with_names["targets"] > 0]
+    YAC = YAC[
+        ["player_name", "receptions", "targets", "receiving_yards", "receiving_yards_after_catch", "receiving_tds"]]
+
+    YAC["rec_to_tar"] = (YAC["receptions"] / YAC["targets"]).round(2)
+    YAC["rec_to_yards"] = (YAC["receptions"] / YAC["receiving_yards"]).round(2)
+    YAC = YAC.sort_values("targets")
+    return YAC.to_string(index = False)
 if __name__ == "__main__":
-    user_input = input("select option: \nPlayers\nSchedules\nQuit\nPassing Yards\nRushing Yards\nCompletion Percentage\n\n").upper()
+    user_input = input("select option").upper()
 
     if user_input == "PLAYERS":
         year = int(input("Enter season (2017-2024):\n"))
@@ -125,5 +163,13 @@ if __name__ == "__main__":
         year = (int(input("Enter season (2017-2024):\n")))
         percentage = attempts_completions(year)
         print(percentage)
+    elif user_input == "TD INT RATIO":
+        year = (int(input("Enter season (2017-2024):\n")))
+        ratio = TD_INT_ratio(year)
+        print(ratio)
+    elif user_input == "RECEIVING STATS":
+        year = (int(input("Enter season (2017-2024):\n")))
+        stats = receiving_stats(year)
+        print(stats)
     else:
         print("Invalid input. Please select from options or QUIT.")
