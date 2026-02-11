@@ -55,7 +55,7 @@ def rushing_stats(year):
         how="left"
     )
     rushing_yards = seasonal_with_names[seasonal_with_names["rushing_yards"] > 0]
-    rushing_yards = rushing_yards[["player_name", "recent_team", "position", "carries", "rushing_yards", "rushing_tds"]]
+    rushing_yards = rushing_yards[["player_name", "recent_team", "position", "carries", "rushing_yards", "rushing_tds", "rushing_fumbles","rushing_fumbles_lost"]]
     return rushing_yards.to_string(index=False)
 
 def attempts_completions(year):
@@ -112,49 +112,60 @@ def receiving_stats(year):
     YAC["rec_to_yards"] = (YAC["receptions"] / YAC["receiving_yards"]).round(2)
     YAC = YAC.sort_values("targets")
     return YAC.to_string(index = False)
+
+def special_teams_tds(year):
+    pd.set_option('display.max_rows', None)
+    seasonal_data = nfl.import_seasonal_data([2024])
+    weekly = nfl.import_weekly_data([2024], columns=["player_id", "player_name", "recent_team"])
+    player_names = weekly.drop_duplicates(subset="player_id")
+    seasonal_with_names = seasonal_data.merge(
+        player_names,
+        on="player_id",
+        how="left"
+    )
+    total = seasonal_with_names[seasonal_with_names["special_teams_tds"] > 0]
+    total = total[["player_id", "player_name", "recent_team", "special_teams_tds"]].sort_values("recent_team")
+    return total
+
+def sacks_by_qb(year):
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    seasonal_data = nfl.import_seasonal_data([2024])
+    weekly = nfl.import_weekly_data([2024], columns=["player_id", "player_name", "recent_team"])
+    player_names = weekly.drop_duplicates(subset="player_id")
+    seasonal_with_names = seasonal_data.merge(
+        player_names,
+        on="player_id",
+        how="left"
+    )
+    sacks = seasonal_with_names[seasonal_with_names["sacks"] > 0]
+    sacks = sacks[["player_id", "player_name", "recent_team", "sacks", "sack_yards", "sack_fumbles", "sack_fumbles_lost"]].sort_values(
+        "sacks")
+    return sacks.to_string(index = False)
+
 if __name__ == "__main__":
     user_input = input("select option").upper()
-
+    year = int(input("Enter season (2017-2024):\n"))
     if user_input == "PLAYERS":
-        year = int(input("Enter season (2017-2024):\n"))
         players = player_list(year)
-
         if os.path.exists('nfl_players.xlsx'):
             os.remove('nfl_players.xlsx')
-            print(f"{'nfl_players.xlsx'} existed and was deleted.")
-        else:
-            print(f"{'nfl_players.xlsx'} does not exist, creating new file.")
-
         players.to_excel('nfl_players.xlsx', index=False)
-        print("File saved.")
-
-        print("done")
     elif user_input == "SCHEDULES":
-        year = int(input("Enter season (2017-2024):\n"))
-        schedules = team_schedule(year)
-        print(schedules)
-        print("Schedule loaded")
+        print(team_schedule(year))
     elif user_input == "PASSING YARDS":
-        year = int(input("Enter season (2017-2024):\n"))
-        passing = passing_yards_in_season(year)
-        print(passing)
-        print("Passing Yards Shown\n")
+        print(passing_yards_in_season(year))
     elif user_input =="RUSHING STATS":
-        year = int(input("Enter season (2017-2024):\n"))
-        rushing = rushing_stats(year)
-        print(rushing)
-        print("Rushing Yards Shown")
+        print(rushing_stats(year))
     elif user_input == "COMPLETION PERCENTAGE":
-        year = (int(input("Enter season (2017-2024):\n")))
-        percentage = attempts_completions(year)
-        print(percentage)
+        print(attempts_completions(year))
     elif user_input == "TD INT RATIO":
-        year = (int(input("Enter season (2017-2024):\n")))
-        ratio = TD_INT_ratio(year)
-        print(ratio)
+        print(TD_INT_ratio(year))
     elif user_input == "RECEIVING STATS":
-        year = (int(input("Enter season (2017-2024):\n")))
-        stats = receiving_stats(year)
-        print(stats)
+        print(receiving_stats(year))
+    elif user_input == "SPECIAL TEAMS":
+        print(special_teams_tds(year))
+    elif user_input == "SACKS":
+        print(sacks_by_qb(year))
     else:
         print("Invalid input. Please select from options or QUIT.")
