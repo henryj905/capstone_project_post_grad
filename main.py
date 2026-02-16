@@ -11,14 +11,13 @@ def player_list(year):
     return players.drop_duplicates()
 
 
-def team_schedule(year):
+def team_schedule(year, team_abbr):
     data = nfl.import_schedules([year])
     teams = data[["away_team"]].drop_duplicates().sort_values("away_team")
     teams = teams.reset_index(drop=True)
     teams.index += 1
     print(teams)
-    selection = input("Select team to view schedule: \n")
-    selection = selection.upper()
+    selection = team_abbr.upper()
 
     games = data[(data["home_team"] == selection) | (data["away_team"] == selection)].copy()
 
@@ -43,6 +42,20 @@ def special_teams_tds(year):
     total = seasonal_with_names[seasonal_with_names["special_teams_tds"] > 0]
     total = total[["player_id", "player_name", "recent_team", "special_teams_tds"]].sort_values("recent_team")
     return total
+
+
+def depth_chart(year, team_abbr, week_num):
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    data = nfl.import_weekly_rosters([year])
+
+    data = data[["week", "player_id", "player_name", "team", "depth_chart_position", "status"]]
+    team_abbr = team_abbr.upper()
+    data = data[data["team"] == team_abbr]
+    data = data[data["week"] == week_num]
+
+    return data.sort_values(["week", "team", "depth_chart_position"]).to_string(index=False)
+
 
 def to_excel(year):
     players = player_list(year)
@@ -99,7 +112,7 @@ def to_excel(year):
 
 
 if __name__ == "__main__":
-    print("Players    Schedules    Passing Stats    Rushing Stats    Receiving Stats    Special Teams    Sacks    All")
+    print("Players    Schedules    Passing Stats    Rushing Stats    Receiving Stats    Special Teams    Sacks    Depth Charts    All")
     user_input = input("select option").upper()
     user_year = int(input("Enter season (2017-2024):\n"))
 
@@ -107,7 +120,7 @@ if __name__ == "__main__":
         print(player_list(user_year))
 
     elif user_input == "SCHEDULES":
-        print(team_schedule(user_year))
+        print(team_schedule(user_year, 'was'))
 
     elif user_input == "PASSING STATS":
         print(OffensiveStats.passing_stats(user_year))
@@ -123,6 +136,11 @@ if __name__ == "__main__":
 
     elif user_input == "SACKS":
         print(OffensiveStats.sacks_by_qb(user_year))
+
+    elif user_input == "DEPTH CHARTS":
+        team = input("Team abbreviation")
+        week = int(input("Pick week (1-18): "))
+        print(depth_chart(user_year, team, week))
 
     elif user_input == "ALL":
         print(to_excel(user_year))
