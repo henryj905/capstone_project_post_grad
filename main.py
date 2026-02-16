@@ -55,17 +55,11 @@ if __name__ == "__main__":
 
     elif user_input == "SCHEDULES":
         print(team_schedule(user_year))
-    elif user_input == "PASSING YARDS":
-        print(OffensiveStats.passing_yards_in_season(user_year))
+    elif user_input == "PASSING STATS":
+        print(OffensiveStats.passing_stats(user_year))
 
     elif user_input == "RUSHING STATS":
         print(OffensiveStats.rushing_stats(user_year))
-
-    elif user_input == "COMPLETION PERCENTAGE":
-        print(OffensiveStats.attempts_completions(user_year))
-
-    elif user_input == "TD INT RATIO":
-        print(OffensiveStats.td_int_ratio(user_year))
 
     elif user_input == "RECEIVING STATS":
         print(OffensiveStats.receiving_stats(user_year))
