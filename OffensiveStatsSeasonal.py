@@ -2,7 +2,7 @@ import nfl_data_py as nfl
 import pandas as pd
 
 
-def passing_stats(year):
+def passing_stats_season(year):
     pd.set_option('display.max_rows', None)
     seasonal_data = nfl.import_seasonal_data([year])
     weekly = nfl.import_weekly_data([year],columns=["player_id", "player_name", "recent_team", "position"]).drop_duplicates(subset="player_id")
@@ -33,7 +33,7 @@ def passing_stats(year):
     return data[["player_name", "recent_team", "position", "passing_yards", "completions", "attempts", "completion_pct",
                  "passing_tds", "interceptions", "passer_rating"]].sort_values("recent_team")
 
-def rushing_stats(year):
+def rushing_stats_season(year):
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     seasonal_data = nfl.import_seasonal_data([year])
@@ -63,7 +63,7 @@ def rushing_stats(year):
     return rushing_yards.sort_values("recent_team")
 
 
-def receiving_stats(year):
+def receiving_stats_season(year):
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
 
@@ -99,7 +99,7 @@ def receiving_stats(year):
     return yac.sort_values("recent_team")
 
 
-def sacks_by_qb(year):
+def sacks_by_qb_season(year):
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     seasonal_data = nfl.import_seasonal_data([year])

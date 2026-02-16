@@ -1,6 +1,6 @@
 import nfl_data_py as nfl
 import os
-import OffensiveStats
+import OffensiveStatsSeasonal
 import pandas as pd
 
 
@@ -112,7 +112,7 @@ def to_excel(year):
 
 
 if __name__ == "__main__":
-    print("Players    Schedules    Passing Stats    Rushing Stats    Receiving Stats    Special Teams    Sacks    Depth Charts    All")
+    print("Players    Schedules    Passing    Rushing    Receiving    Special Teams    Sacks    Depth Charts    All")
     user_input = input("select option").upper()
     user_year = int(input("Enter season (2017-2024):\n"))
 
@@ -122,20 +122,20 @@ if __name__ == "__main__":
     elif user_input == "SCHEDULES":
         print(team_schedule(user_year, 'was'))
 
-    elif user_input == "PASSING STATS":
-        print(OffensiveStats.passing_stats(user_year))
+    elif user_input == "PASSING":
+        print(OffensiveStats.passing_stats_season(user_year))
 
-    elif user_input == "RUSHING STATS":
-        print(OffensiveStats.rushing_stats(user_year))
+    elif user_input == "RUSHING":
+        print(OffensiveStats.rushing_stats_season(user_year))
 
-    elif user_input == "RECEIVING STATS":
-        print(OffensiveStats.receiving_stats(user_year))
+    elif user_input == "RECEIVING":
+        print(OffensiveStats.receiving_stats_season(user_year))
 
     elif user_input == "SPECIAL TEAMS":
         print(special_teams_tds(user_year))
 
     elif user_input == "SACKS":
-        print(OffensiveStats.sacks_by_qb(user_year))
+        print(OffensiveStats.sacks_by_qb_season(user_year))
 
     elif user_input == "DEPTH CHARTS":
         team = input("Team abbreviation")
