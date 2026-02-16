@@ -68,7 +68,7 @@ def receiving_stats(year):
     pd.set_option('display.max_columns', None)
 
     seasonal_data = nfl.import_seasonal_data([year])
-    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name"])
+    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team"])
     player_names = weekly.drop_duplicates(subset="player_id")
     seasonal_with_names = seasonal_data.merge(
         player_names,
@@ -77,19 +77,25 @@ def receiving_stats(year):
     )
     yac = seasonal_with_names[seasonal_with_names["targets"] > 0]
     yac = yac[
-        ["player_name", "receptions", "targets", "receiving_yards", "receiving_yards_after_catch", "receiving_tds"]]
+        ["player_id", "player_name", "recent_team", "receptions", "targets", "receiving_yards", "receiving_yards_after_catch", "receiving_tds"]]
 
     yac["rec_to_tar"] = (yac["receptions"] / yac["targets"]).round(2)
     yac["rec_to_yards"] = (yac["receptions"] / yac["receiving_yards"]).round(2)
 
     data = nfl.import_ngs_data("receiving", [2024])
-    seperation = data[["player_gsis", "seperation"]]
-    yac = yac.merge(
 
+    separation = data[["player_gsis_id", "avg_separation"]]
+    separation_avg = separation.groupby(["player_gsis_id"], as_index=False)["avg_separation"].mean()
+    separation_avg = separation_avg.rename(columns={"player_gsis_id": "player_id"})
+
+    yac = yac.merge(
+        separation_avg,
+        on="player_id",
+        how="left"
     )
 
     yac = yac.sort_values("targets")
-    yac = yac.to_strinf(index=False)
+    yac = yac.to_string(index=False)
     return yac
 
 
