@@ -2,19 +2,36 @@ import nfl_data_py as nfl
 import pandas as pd
 
 
-def passing_yards_in_season(year):
+def passing_stats(year):
     pd.set_option('display.max_rows', None)
     seasonal_data = nfl.import_seasonal_data([year])
-    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team", "position"])
-    player_names = weekly.drop_duplicates(subset="player_id")
-    seasonal_with_names = seasonal_data.merge(
-        player_names,
+    weekly = nfl.import_weekly_data([year],columns=["player_id", "player_name", "recent_team", "position"]).drop_duplicates(subset="player_id")
+
+    data = seasonal_data.merge(
+        weekly,
         on="player_id",
         how="left"
     )
-    passing_yards = seasonal_with_names[seasonal_with_names["passing_yards"] > 0]
-    return passing_yards[["player_name", "recent_team", "position", "passing_yards"]].sort_values("recent_team")
+    #keep players with attempts
+    data = data[data["attempts"] > 0]
 
+    data["completion_pct"] = (
+        data["completions"] / data["attempts"] * 100
+    ).round(2)
+
+    efficiency = nfl.import_ngs_data("passing", [2024])
+    efficiency = efficiency[["player_gsis_id", "passer_rating"]]
+    efficiency_avg = efficiency.groupby(["player_gsis_id"], as_index=False)["passer_rating"].mean()
+    efficiency_avg = efficiency_avg.rename(columns={"player_gsis_id": "player_id"})
+
+    data = data.merge(
+        efficiency_avg,
+        on="player_id",
+        how="left"
+    )
+
+    return data[["player_name", "recent_team", "position", "passing_yards", "completions", "attempts", "completion_pct",
+                 "passing_tds", "interceptions", "passer_rating"]].sort_values("recent_team").to_string(index=False)
 
 def rushing_stats(year):
     pd.set_option('display.max_rows', None)
@@ -46,42 +63,6 @@ def rushing_stats(year):
     return rushing_yards.to_string(index=False, col_space=12)
 
 
-def attempts_completions(year):
-    pd.set_option('display.max_rows', None)
-    seasonal_data = nfl.import_seasonal_data([year])
-    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name"])
-    player_names = weekly.drop_duplicates(subset="player_id")
-    seasonal_with_names = seasonal_data.merge(
-        player_names,
-        on="player_id",
-        how="left"
-    )
-    percentage = seasonal_with_names[seasonal_with_names["attempts"] > 0]
-    percentage = percentage[["player_name", "completions", "attempts"]]
-    percentage["completion_pct"] = (percentage["completions"] / percentage["attempts"] * 100).round(2)
-    percentage = percentage.sort_values("attempts")
-    return percentage
-
-
-def td_int_ratio(year):
-    pd.set_option('display.max_rows', None)
-    seasonal_data = nfl.import_seasonal_data([year])
-    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name"])
-    player_names = weekly.drop_duplicates(subset="player_id")
-    seasonal_with_names = seasonal_data.merge(
-        player_names,
-        on="player_id",
-        how="left"
-    )
-    tdi = seasonal_with_names[seasonal_with_names["passing_tds"] > 0]
-    tdi = tdi[["player_name", "passing_tds", "interceptions"]]
-
-    tdi["ratio"] = (tdi["passing_tds"] / tdi["interceptions"]).round(2)
-    tdi.loc[tdi["interceptions"] == 0, "ratio"] = "NO INT"
-    tdi = tdi.sort_values("passing_tds")
-    return tdi
-
-
 def receiving_stats(year):
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
@@ -100,6 +81,13 @@ def receiving_stats(year):
 
     yac["rec_to_tar"] = (yac["receptions"] / yac["targets"]).round(2)
     yac["rec_to_yards"] = (yac["receptions"] / yac["receiving_yards"]).round(2)
+
+    data = nfl.import_ngs_data("receiving", [2024])
+    seperation = data[["player_gsis", "seperation"]]
+    yac = yac.merge(
+
+    )
+
     yac = yac.sort_values("targets")
     yac = yac.to_strinf(index=False)
     return yac
