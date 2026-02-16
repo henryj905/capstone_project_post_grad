@@ -4,6 +4,7 @@ import OffensiveStats
 import pandas as pd
 
 
+
 def player_list(year):
     depth_charts = nfl.import_depth_charts([year])
     players = depth_charts[["gsis_id", "full_name", "club_code", "position", "depth_team"]]
@@ -25,7 +26,7 @@ def team_schedule(year):
     games = games.reset_index(drop=True)
     games.index = games.index+1
 
-    schedule = games[["week", "away_team", "home_team", "location"]].to_string(index=False)
+    schedule = games[["week", "away_team", "home_team", "location"]]
     return schedule
 
 
@@ -43,18 +44,71 @@ def special_teams_tds(year):
     total = total[["player_id", "player_name", "recent_team", "special_teams_tds"]].sort_values("recent_team")
     return total
 
+def to_excel(year):
+    players = player_list(year)
+    passing = OffensiveStats.passing_stats(year)
+    rushing = OffensiveStats.rushing_stats(year)
+    receiving = OffensiveStats.receiving_stats(year)
+    sacks = OffensiveStats.sacks_by_qb(year)
+    special = special_teams_tds(year)
+
+    file_name = "NFL_Stats.xlsx"
+    if os.path.exists(file_name):
+        os.remove(file_name)
+
+    with pd.ExcelWriter(file_name, engine="openpyxl") as writer:
+
+        # Write each table spaced apart horizontally
+        players.to_excel(writer, sheet_name="All Stats", startrow=0, startcol=0, index=False)
+        passing.to_excel(writer, sheet_name="All Stats", startrow=0, startcol=players.shape[1] + 3, index=False)
+
+        rushing.to_excel(writer, sheet_name="All Stats", startrow=0, startcol=players.shape[1] + passing.shape[1] + 6, index=False)
+
+        receiving.to_excel(writer, sheet_name="All Stats",
+                           startrow=0,
+                           startcol=players.shape[1] + passing.shape[1] + rushing.shape[1] + 9,
+                           index=False)
+
+        sacks.to_excel(writer, sheet_name="All Stats",
+                       startrow=0,
+                       startcol=players.shape[1] + passing.shape[1] + rushing.shape[1] + receiving.shape[1] + 12,
+                       index=False)
+
+        special.to_excel(writer, sheet_name="All Stats",
+                         startrow=0,
+                         startcol=players.shape[1] + passing.shape[1] + rushing.shape[1] +
+                                  receiving.shape[1] + sacks.shape[1] + 15,
+                         index=False)
+    worksheet = writer.sheets["All Stats"]
+
+    for column_cells in worksheet.columns:
+        max_length = 0
+        column = column_cells[0].column_letter  # Get column letter
+
+        for cell in column_cells:
+            try:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
+            except:
+                pass
+
+        adjusted_width = max_length + 2
+        worksheet.column_dimensions[column].width = adjusted_width
+
+    print("NFL_Stats.xlsx created successfully.")
+
 
 if __name__ == "__main__":
+    print("Players    Schedules    Passing Stats    Rushing Stats    Receiving Stats    Special Teams    Sacks    All")
     user_input = input("select option").upper()
     user_year = int(input("Enter season (2017-2024):\n"))
 
     if user_input == "PLAYERS":
-        if os.path.exists('nfl_players.xlsx'):
-            os.remove('nfl_players.xlsx')
-        player_list(user_year).to_excel('nfl_players.xlsx', index=False)
+        print(player_list(user_year))
 
     elif user_input == "SCHEDULES":
         print(team_schedule(user_year))
+
     elif user_input == "PASSING STATS":
         print(OffensiveStats.passing_stats(user_year))
 
@@ -70,5 +124,7 @@ if __name__ == "__main__":
     elif user_input == "SACKS":
         print(OffensiveStats.sacks_by_qb(user_year))
 
+    elif user_input == "ALL":
+        print(to_excel(user_year))
     else:
         print("Invalid input. Please select from options or QUIT.")

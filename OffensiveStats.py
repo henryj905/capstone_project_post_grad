@@ -31,7 +31,7 @@ def passing_stats(year):
     )
 
     return data[["player_name", "recent_team", "position", "passing_yards", "completions", "attempts", "completion_pct",
-                 "passing_tds", "interceptions", "passer_rating"]].sort_values("recent_team").to_string(index=False)
+                 "passing_tds", "interceptions", "passer_rating"]].sort_values("recent_team")
 
 def rushing_stats(year):
     pd.set_option('display.max_rows', None)
@@ -60,7 +60,7 @@ def rushing_stats(year):
     rushing_yards["YPC"] = (rushing_yards["rushing_yards"] / rushing_yards["carries"]).round(2)
     rushing_yards = rushing_yards[["player_name", "recent_team", "position", "carries", "rushing_yards", "YPC",
                                    "rushing_tds", "rushing_fumbles", "rushing_fumbles_lost", "efficiency"]]
-    return rushing_yards.to_string(index=False, col_space=12)
+    return rushing_yards.sort_values("recent_team")
 
 
 def receiving_stats(year):
@@ -95,8 +95,8 @@ def receiving_stats(year):
     )
 
     yac = yac.sort_values("targets")
-    yac = yac.to_string(index=False)
-    return yac
+    yac = yac
+    return yac.sort_values("recent_team")
 
 
 def sacks_by_qb(year):
@@ -112,6 +112,6 @@ def sacks_by_qb(year):
     )
     sacks = seasonal_with_names[seasonal_with_names["sacks"] > 0]
     sacks = sacks[["player_id", "player_name", "recent_team", "sacks", "sack_yards", "sack_fumbles",
-                   "sack_fumbles_lost"]].sort_values("sacks")
-    sacks = sacks.to_string(index=False)
+                   "sack_fumbles_lost"]].sort_values("recent_team")
+    sacks = sacks
     return sacks
