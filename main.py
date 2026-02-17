@@ -123,19 +123,19 @@ if __name__ == "__main__":
         print(team_schedule(user_year, 'was'))
 
     elif user_input == "PASSING":
-        print(OffensiveStats.passing_stats_season(user_year))
+        print(OffensiveStatsSeasonal.passing_stats_season(user_year))
 
     elif user_input == "RUSHING":
-        print(OffensiveStats.rushing_stats_season(user_year))
+        print(OffensiveStatsSeasonal.rushing_stats_season(user_year))
 
     elif user_input == "RECEIVING":
-        print(OffensiveStats.receiving_stats_season(user_year))
+        print(OffensiveStatsSeasonal.receiving_stats_season(user_year))
 
     elif user_input == "SPECIAL TEAMS":
         print(special_teams_tds(user_year))
 
     elif user_input == "SACKS":
-        print(OffensiveStats.sacks_by_qb_season(user_year))
+        print(OffensiveStatsSeasonal.sacks_by_qb_season(user_year))
 
     elif user_input == "DEPTH CHARTS":
         team = input("Team abbreviation")
