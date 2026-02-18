@@ -112,37 +112,56 @@ def to_excel(year):
 
 
 if __name__ == "__main__":
-    print("Players    Schedules    Passing    Rushing    Receiving    Special Teams    Sacks    Depth Charts    All")
+    print("Season or Weekly stats?")
+    question = input().upper()
+    if question == "SEASON":
+        print("Players    Schedules    Passing    Rushing    Receiving    Special Teams    Sacks    Depth Charts    All")
+    if question == "WEEKLY":
+        print("Passing    Rushing    Receiving    Sacks")
     user_input = input("select option").upper()
     user_year = int(input("Enter season (2017-2024):\n"))
+    if question =="SEASON":
+        if user_input == "PLAYERS":
+            print(player_list(user_year))
 
-    if user_input == "PLAYERS":
-        print(player_list(user_year))
+        elif user_input == "SCHEDULES":
+            print(team_schedule(user_year, 'was'))
 
-    elif user_input == "SCHEDULES":
-        print(team_schedule(user_year, 'was'))
+        elif user_input == "PASSING":
+            print(OffensiveStatsSeasonal.passing_stats_season(user_year))
 
-    elif user_input == "PASSING":
-        print(OffensiveStatsSeasonal.passing_stats_season(user_year))
+        elif user_input == "RUSHING":
+            print(OffensiveStatsSeasonal.rushing_stats_season(user_year))
 
-    elif user_input == "RUSHING":
-        print(OffensiveStatsSeasonal.rushing_stats_season(user_year))
+        elif user_input == "RECEIVING":
+            print(OffensiveStatsSeasonal.receiving_stats_season(user_year))
 
-    elif user_input == "RECEIVING":
-        print(OffensiveStatsSeasonal.receiving_stats_season(user_year))
+        elif user_input == "SPECIAL TEAMS":
+            print(special_teams_tds(user_year))
 
-    elif user_input == "SPECIAL TEAMS":
-        print(special_teams_tds(user_year))
+        elif user_input == "SACKS":
+            print(OffensiveStatsSeasonal.sacks_by_qb_season(user_year))
 
-    elif user_input == "SACKS":
-        print(OffensiveStatsSeasonal.sacks_by_qb_season(user_year))
+        elif user_input == "DEPTH CHARTS":
+            team = input("Team abbreviation")
+            week = int(input("Pick week (1-18): "))
+            print(depth_chart(user_year, team, week))
 
-    elif user_input == "DEPTH CHARTS":
-        team = input("Team abbreviation")
-        week = int(input("Pick week (1-18): "))
-        print(depth_chart(user_year, team, week))
+        elif user_input == "ALL":
+            print(to_excel(user_year))
+        else:
+            print("Invalid input. Please select from options or QUIT.")
 
-    elif user_input == "ALL":
-        print(to_excel(user_year))
-    else:
-        print("Invalid input. Please select from options or QUIT.")
+
+    if question == "WEEKLY":
+        if user_input == "PASSING":
+            print(OffensiveStatsSeasonal.passing_stats_season(user_year))
+
+        elif user_input == "RUSHING":
+            print(OffensiveStatsSeasonal.rushing_stats_season(user_year))
+
+        elif user_input == "RECEIVING":
+            print(OffensiveStatsSeasonal.receiving_stats_season(user_year))
+
+        elif user_input == "SACKS":
+            print(OffensiveStatsSeasonal.sacks_by_qb_season(user_year))
