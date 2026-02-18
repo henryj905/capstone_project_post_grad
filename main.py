@@ -1,6 +1,7 @@
 import nfl_data_py as nfl
 import os
 import OffensiveStatsSeasonal
+import OffensiveStatsWeekly
 import pandas as pd
 
 
@@ -154,14 +155,15 @@ if __name__ == "__main__":
 
 
     if question == "WEEKLY":
+        week = int(input("What week (1-18): "))
         if user_input == "PASSING":
-            print(OffensiveStatsSeasonal.passing_stats_season(user_year))
+            print(OffensiveStatsWeekly.passing_weekly(user_year, week))
 
         elif user_input == "RUSHING":
-            print(OffensiveStatsSeasonal.rushing_stats_season(user_year))
+            print(OffensiveStatsWeekly.rushing_weekly(user_year, week))
 
         elif user_input == "RECEIVING":
-            print(OffensiveStatsSeasonal.receiving_stats_season(user_year))
+            print(OffensiveStatsWeekly.receiving_weekly(user_year, week))
 
         elif user_input == "SACKS":
-            print(OffensiveStatsSeasonal.sacks_by_qb_season(user_year))
+            print(OffensiveStatsWeekly.sacks_qb_weekly(user_year, week))
