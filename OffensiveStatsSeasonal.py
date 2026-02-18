@@ -79,8 +79,8 @@ def receiving_stats_season(year):
     yac = yac[
         ["player_id", "player_name", "recent_team", "receptions", "targets", "receiving_yards", "receiving_yards_after_catch", "receiving_tds"]]
 
-    yac["rec_to_tar"] = (yac["receptions"] / yac["targets"]).round(2)
-    yac["rec_to_yards"] = (yac["receptions"] / yac["receiving_yards"]).round(2)
+    yac["avg_completion_pct"] = (yac["receptions"] / yac["targets"]).round(2)
+    yac["avg_yards_per_rec"] = (yac["receiving_yards"] / yac["receptions"]).round(2)
 
     data = nfl.import_ngs_data("receiving", [2024])
 
