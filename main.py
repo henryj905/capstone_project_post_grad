@@ -59,10 +59,10 @@ def depth_chart(year, team_abbr, week_num):
 
 def to_excel(year):
     players = player_list(year)
-    passing = OffensiveStats.passing_stats(year)
-    rushing = OffensiveStats.rushing_stats(year)
-    receiving = OffensiveStats.receiving_stats(year)
-    sacks = OffensiveStats.sacks_by_qb(year)
+    passing = OffensiveStatsSeasonal.passing_stats_season(year)
+    rushing = OffensiveStatsSeasonal.rushing_stats_season(year)
+    receiving = OffensiveStatsSeasonal.receiving_stats_season(year)
+    sacks = OffensiveStatsSeasonal.sacks_by_qb_season(year)
     special = special_teams_tds(year)
 
     file_name = "NFL_Stats.xlsx"
