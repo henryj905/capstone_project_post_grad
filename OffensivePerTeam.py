@@ -1,5 +1,4 @@
 import OffensiveStatsSeasonal
-import OffensiveStatsWeekly
 import pandas as pd
 
 def team_passing_season(year):

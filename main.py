@@ -1,5 +1,7 @@
 import nfl_data_py as nfl
 import os
+
+import OffensivePerTeam
 import OffensiveStatsSeasonal
 import OffensiveStatsWeekly
 import pandas as pd
@@ -111,59 +113,79 @@ def to_excel(year):
 
     print("NFL_Stats.xlsx created successfully.")
 
+def teams():
+    abbr = nfl.import_team_desc()
+    abbr = abbr[["team_abbr", "team_name"]]
+
+    teams_to_remove = ["LA", "SD", "OAK" , "STL"]
+
+    data = abbr[~abbr["team_abbr"].isin(teams_to_remove)]
+
+    return data[["team_abbr", "team_name"]]
+
 
 if __name__ == "__main__":
+    print(teams())
     print("Season or Weekly stats?")
     question = input().upper()
+
     if question == "SEASON":
         print("Players    Schedules    Passing    Rushing    Receiving    Special Teams    Sacks    Depth Charts    All")
-    if question == "WEEKLY":
+    elif question == "WEEKLY" or question == "SEASON TOTALS":
         print("Passing    Rushing    Receiving    Sacks")
+
     user_input = input("select option").upper()
     user_year = int(input("Enter season (2017-2024):\n"))
-    if question =="SEASON":
-        if user_input == "PLAYERS":
-            print(player_list(user_year))
 
-        elif user_input == "SCHEDULES":
-            print(team_schedule(user_year, 'was'))
+    if question == "SEASON":
+        season_functions = {
+            "PLAYERS": lambda: print(player_list(user_year)),
+            "SCHEDULES": lambda: print(team_schedule(user_year, 'WAS')),
+            "PASSING": lambda: print(OffensiveStatsSeasonal.passing_stats_season(user_year)),
+            "RUSHING": lambda: print(OffensiveStatsSeasonal.rushing_stats_season(user_year)),
+            "RECEIVING": lambda: print(OffensiveStatsSeasonal.receiving_stats_season(user_year)),
+            "SPECIAL TEAMS": lambda: print(special_teams_tds(user_year)),
+            "SACKS": lambda: print(OffensiveStatsSeasonal.sacks_by_qb_season(user_year)),
+            "DEPTH CHARTS": lambda: print(depth_chart(
+                user_year,
+                input("Team abbreviation: ").upper(),
+                int(input("Pick week (1-18): "))
+            )),
+            "ALL": lambda: print(to_excel(user_year))
+        }
 
-        elif user_input == "PASSING":
-            print(OffensiveStatsSeasonal.passing_stats_season(user_year))
-
-        elif user_input == "RUSHING":
-            print(OffensiveStatsSeasonal.rushing_stats_season(user_year))
-
-        elif user_input == "RECEIVING":
-            print(OffensiveStatsSeasonal.receiving_stats_season(user_year))
-
-        elif user_input == "SPECIAL TEAMS":
-            print(special_teams_tds(user_year))
-
-        elif user_input == "SACKS":
-            print(OffensiveStatsSeasonal.sacks_by_qb_season(user_year))
-
-        elif user_input == "DEPTH CHARTS":
-            team = input("Team abbreviation")
-            week = int(input("Pick week (1-18): "))
-            print(depth_chart(user_year, team, week))
-
-        elif user_input == "ALL":
-            print(to_excel(user_year))
+        func = season_functions.get(user_input.upper())
+        if func:
+            func()
         else:
             print("Invalid input. Please select from options or QUIT.")
 
-
-    if question == "WEEKLY":
+    elif question == "WEEKLY":
         week = int(input("What week (1-18): "))
-        if user_input == "PASSING":
-            print(OffensiveStatsWeekly.passing_weekly(user_year, week))
 
-        elif user_input == "RUSHING":
-            print(OffensiveStatsWeekly.rushing_weekly(user_year, week))
+        stat_functions = {
+            "PASSING": OffensiveStatsWeekly.passing_weekly,
+            "RUSHING": OffensiveStatsWeekly.rushing_weekly,
+            "RECEIVING": OffensiveStatsWeekly.receiving_weekly,
+            "SACKS": OffensiveStatsWeekly.sacks_qb_weekly
+        }
 
-        elif user_input == "RECEIVING":
-            print(OffensiveStatsWeekly.receiving_weekly(user_year, week))
+        func = stat_functions.get(user_input)
+        if func:
+            print(func(user_year, week))
+        else:
+            print("Invalid input. Choose PASSING, RUSHING, RECEIVING, or SACKS.")
 
-        elif user_input == "SACKS":
-            print(OffensiveStatsWeekly.sacks_qb_weekly(user_year, week))
+    elif question == "SEASON TOTALS":
+        stat_functions = {
+            "PASSING": OffensivePerTeam.team_passing_season,
+            "RUSHING": OffensivePerTeam.team_rushing_season,
+            "RECEIVING": OffensivePerTeam.team_receiving_season,
+            "SACKS": OffensivePerTeam.team_sacks_season
+        }
+
+        func = stat_functions.get(user_input)
+        if func:
+            print(func(user_year))
+        else:
+            print("Invalid input. Choose PASSING, RUSHING, RECEIVING, or SACKS.")
