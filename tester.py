@@ -1,23 +1,15 @@
 import nfl_data_py as nfl
 import pandas as pd
 
+def sacks_qb_weekly(year, week):
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    sacks = nfl.import_weekly_data([year])
+    sacks = sacks[["week", "player_id", "player_name", "recent_team", "position", "sacks", "sack_yards", "sack_fumbles"]]
 
-pd.set_option('display.max_rows',None)
-data = nfl.import_seasonal_data([2024])
-print(list(data.columns))
+    sacks = sacks[sacks["sacks"] > 0]
+    sacks = sacks[sacks["week"] == week]
+    return sacks.sort_values(["recent_team", "position", "player_name"]).to_string(index=False)
 
-seasonal_data = nfl.import_seasonal_data([2024])
-
-weekly = nfl.import_weekly_data([2024], columns = ["player_id","player_name"])
-
-player_names = weekly.drop_duplicates(subset = "player_id")
-
-seasonal_with_names = seasonal_data.merge(
-    player_names,
-    on = "player_id",
-    how = "left"
-)
-
-passing_yards = seasonal_with_names[seasonal_with_names["passing_yards"]>0]
-
-print(passing_yards[["player_name", "passing_yards"]].sort_values("passing_yards"))
+if __name__ == "__main__":
+    print(sacks_qb_weekly(2024, 1))
