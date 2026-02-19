@@ -13,7 +13,7 @@ def team_passing_season(year):
         "passer_rating": "mean"
     })
     team_stats["passer_rating"] = team_stats["passer_rating"].round(2)
-    return team_stats.to_string(index=False)
+    return team_stats
 
 
 def team_rushing_season(year):
@@ -30,7 +30,7 @@ def team_rushing_season(year):
     })
     team_stats["YPC"] = team_stats["YPC"].round(2)
     team_stats["efficiency"] = team_stats["efficiency"].round(2)
-    return team_stats.to_string(index=False)
+    return team_stats
 
 def team_receiving_season(year):
     pd.set_option('display.max_columns', None)
@@ -48,7 +48,7 @@ def team_receiving_season(year):
     team_stats["avg_completion_pct"] = team_stats["avg_completion_pct"].round(2)
     team_stats["avg_yards_per_rec"] = team_stats["avg_yards_per_rec"].round(2)
     team_stats["avg_separation"] = team_stats["avg_separation"].round(2)
-    return team_stats.to_string(index=False)
+    return team_stats
 
 def team_sacks_season(year):
     pd.set_option('display.max_columns', None)
@@ -60,6 +60,4 @@ def team_sacks_season(year):
         "sack_fumbles_lost": "sum"
     })
     team_stats["fumble_lost_ratio"] = (team_stats["sack_fumbles_lost"]/team_stats["sack_fumbles"]).round(2)
-    return team_stats.to_string(index=False)
-
-print(team_sacks_season(2024))
+    return team_stats

@@ -5,14 +5,15 @@ import pandas as pd
 def passing_stats_season(year):
     pd.set_option('display.max_rows', None)
     seasonal_data = nfl.import_seasonal_data([year])
-    weekly = nfl.import_weekly_data([year],columns=["player_id", "player_name", "recent_team", "position"]).drop_duplicates(subset="player_id")
+    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team",
+                                                     "position"]).drop_duplicates(subset="player_id")
 
     data = seasonal_data.merge(
         weekly,
         on="player_id",
         how="left"
     )
-    #keep players with attempts
+
     data = data[data["attempts"] > 0]
 
     data["completion_pct"] = (
