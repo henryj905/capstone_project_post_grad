@@ -19,7 +19,6 @@ def team_schedule(year, team_abbr):
     teams = data[["away_team"]].drop_duplicates().sort_values("away_team")
     teams = teams.reset_index(drop=True)
     teams.index += 1
-    print(teams)
     selection = team_abbr.upper()
 
     games = data[(data["home_team"] == selection) | (data["away_team"] == selection)].copy()
@@ -28,7 +27,7 @@ def team_schedule(year, team_abbr):
     games = games.reset_index(drop=True)
     games.index = games.index+1
 
-    schedule = games[["week", "away_team", "home_team", "location"]]
+    schedule = games[["week", "home_team", "away_team", "location"]]
     return schedule
 
 
@@ -121,7 +120,7 @@ def teams():
 
     data = abbr[~abbr["team_abbr"].isin(teams_to_remove)]
 
-    return data[["team_abbr", "team_name"]]
+    return data["team_abbr"].tolist()
 
 
 if __name__ == "__main__":
@@ -140,7 +139,10 @@ if __name__ == "__main__":
     if question == "SEASON":
         season_functions = {
             "PLAYERS": lambda: print(player_list(user_year)),
-            "SCHEDULES": lambda: print(team_schedule(user_year, 'WAS')),
+            "SCHEDULES": lambda: print(team_schedule(
+                user_year,
+                input("Team abbreviation: ").upper()
+            )),
             "PASSING": lambda: print(OffensiveStatsSeasonal.passing_stats_season(user_year)),
             "RUSHING": lambda: print(OffensiveStatsSeasonal.rushing_stats_season(user_year)),
             "RECEIVING": lambda: print(OffensiveStatsSeasonal.receiving_stats_season(user_year)),
