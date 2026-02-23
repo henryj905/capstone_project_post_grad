@@ -8,7 +8,7 @@ def team_passing_season(team, year):
     data = playerStatsSeasonal.passing_stats_season(year)
     data = data.rename(columns={"recent_team": "team"})
     team_stats = data[data["team"] == team]
-    team_stats = data.groupby("team", as_index=False).agg({
+    team_stats = team_stats.groupby("team", as_index=False).agg({
         "passing_yards": "sum",
         "completions": "sum",
         "attempts": "sum",
@@ -25,7 +25,9 @@ def team_rushing_season(team, year):
 
     pd.set_option('display.max_columns', None)
     data = playerStatsSeasonal.rushing_stats_season(year)
-    team_stats = data.groupby("recent_team", as_index=False).agg({
+    data = data.rename(columns={"recent_team": "team"})
+    team_stats = data[data["team"] == team]
+    team_stats = team_stats.groupby("team", as_index=False).agg({
         "carries": "sum",
         "rushing_yards": "sum",
         "YPC": "mean",
@@ -45,7 +47,9 @@ def team_receiving_season(team, year):
 
     pd.set_option('display.max_columns', None)
     data = playerStatsSeasonal.receiving_stats_season(year)
-    team_stats = data.groupby("recent_team", as_index=False).agg({
+    data = data.rename(columns={"recent_team": "team"})
+    team_stats = data[data["team"] == team]
+    team_stats = team_stats.groupby("team", as_index=False).agg({
         "receptions": "sum",
         "targets": "sum",
         "receiving_yards": "sum",
@@ -66,7 +70,9 @@ def team_sacks_season(team, year):
     team = team.upper()
     pd.set_option('display.max_columns', None)
     data = playerStatsSeasonal.sacks_by_qb_season(year)
-    team_stats = data.groupby("recent_team", as_index=False).agg({
+    data = data.rename(columns={"recent_team": "team"})
+    team_stats = data[data["team"] == team]
+    team_stats = team_stats.groupby("team", as_index=False).agg({
         "sacks": "sum",
         "sack_yards": "sum",
         "sack_fumbles": "sum",
@@ -79,4 +85,4 @@ def team_sacks_season(team, year):
 
     return team_stats
 
-print(team_passing_season('was', 2024))
+print(team_sacks_season('was', 2024))
