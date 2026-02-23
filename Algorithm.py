@@ -17,6 +17,11 @@ def week_opponent(year, team, week):
     return opponent
 
 def compare_year(team1, team2, year, week, stat):
+    stat = stat.upper()
+    team1 = team1.upper()
+    team2 = team2.upper()
+    team1Stats = ""
+    team2Stats = ""
     if week < 2:
         stat_functions = {
             "PASSING": OffensivePerTeam.team_passing_season,
@@ -24,15 +29,23 @@ def compare_year(team1, team2, year, week, stat):
             "RECEIVING": OffensivePerTeam.team_receiving_season,
             "SACKS": OffensivePerTeam.team_sacks_season
         }
-    else:
-        stat_functions = {
-            "PASSING": OffensiveTeamWeekly.team_weekly_stats,
-            "RUSHING": OffensiveTeamWeekly.team_weekly_stats,
-            "RECEIVING": OffensiveTeamWeekly.team_weekly_stats,
-            "SACKS": OffensiveTeamWeekly.team_weekly_stats
-        }
+        func = stat_functions.get(stat)
+        team1Stats = func(team1, year)
+        team2Stats = func(team2, year)
 
-    return None
+    else:
+        team1Stats = OffensiveTeamWeekly.team_weekly_stats(team1, year, week, stat)
+        team2Stats = OffensiveTeamWeekly.team_weekly_stats(team2, year, week, stat)
+
+    team1passing = team1Stats["passing_yards"].iloc[0]
+    team2passing = team2Stats["passing_yards"].iloc[0]
+
+    if team1passing > team2passing:
+        passing_compare = team1
+    else:
+        passing_compare = team2
+
+    return passing_compare
 
 def points_for_passing(year, team, week):
     opponent = week_opponent(year, team, week)

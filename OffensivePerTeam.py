@@ -84,5 +84,3 @@ def team_sacks_season(team, year):
 
 
     return team_stats
-
-print(team_sacks_season('was', 2024))
