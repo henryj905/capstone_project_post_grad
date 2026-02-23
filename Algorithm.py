@@ -1,4 +1,5 @@
 import OffensivePerTeam
+import OffensiveTeamWeekly
 import MainFile
 
 
@@ -16,16 +17,23 @@ def week_opponent(year, team, week):
     return opponent
 
 def compare_year(team1, team2, year, week, stat):
-    if week < 3:
-        stats = OffensivePerTeam.team_passing_season(year-1)
+    if week < 2:
+        stat_functions = {
+            "PASSING": OffensivePerTeam.team_passing_season,
+            "RUSHING": OffensivePerTeam.team_rushing_season,
+            "RECEIVING": OffensivePerTeam.team_receiving_season,
+            "SACKS": OffensivePerTeam.team_sacks_season
+        }
     else:
+        stat_functions = {
+            "PASSING": OffensiveTeamWeekly.team_weekly_stats,
+            "RUSHING": OffensiveTeamWeekly.team_weekly_stats,
+            "RECEIVING": OffensiveTeamWeekly.team_weekly_stats,
+            "SACKS": OffensiveTeamWeekly.team_weekly_stats
+        }
 
+    return None
 
-    if stat not in stats.columns:
-        return f"input not valid, select input from: {list(stats.columns)}"
-
-    team1value = stats.loc[stats["recent_team"].str.upper() == team1.upper(), stat].values[0]
-    return team1value
 def points_for_passing(year, team, week):
     opponent = week_opponent(year, team, week)
 
@@ -34,4 +42,4 @@ def points_for_passing(year, team, week):
 
 if __name__ == "__main__":
 #    print(week_opponent(2019, 'bal', 13))
-    print(compare_year('was', 'bal', 2024, 'passing'))
+    print(compare_year('was', 'bal', 2024, 1, 'passing'))

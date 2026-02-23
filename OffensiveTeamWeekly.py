@@ -1,4 +1,4 @@
-import OffensiveStatsWeekly
+import playerWeeklyStats
 import pandas as pd
 import MainFile
 
@@ -7,10 +7,10 @@ def team_weekly_stats(team, year, week, stat):
     stat = stat.upper()
 
     data_sets = {
-        "PASSING": OffensiveStatsWeekly.passing_weekly,
-        'RUSHING': OffensiveStatsWeekly.rushing_weekly,
-        'RECEIVING': OffensiveStatsWeekly.receiving_weekly,
-        'SACKS': OffensiveStatsWeekly.sacks_qb_weekly
+        "PASSING": playerWeeklyStats.passing_weekly,
+        'RUSHING': playerWeeklyStats.rushing_weekly,
+        'RECEIVING': playerWeeklyStats.receiving_weekly,
+        'SACKS': playerWeeklyStats.sacks_qb_weekly
     }
     data = []
     while week!=0:

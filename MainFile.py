@@ -2,8 +2,8 @@ import nfl_data_py as nfl
 import os
 
 import OffensivePerTeam
-import OffensiveStatsSeasonal
-import OffensiveStatsWeekly
+import playerStatsSeasonal
+import playerWeeklyStats
 import OffensiveTeamWeekly
 import pandas as pd
 
@@ -62,10 +62,10 @@ def depth_chart(year, team_abbr, week_num):
 
 def to_excel(year):
     players = player_list(year)
-    passing = OffensiveStatsSeasonal.passing_stats_season(year)
-    rushing = OffensiveStatsSeasonal.rushing_stats_season(year)
-    receiving = OffensiveStatsSeasonal.receiving_stats_season(year)
-    sacks = OffensiveStatsSeasonal.sacks_by_qb_season(year)
+    passing = playerStatsSeasonal.passing_stats_season(year)
+    rushing = playerStatsSeasonal.rushing_stats_season(year)
+    receiving = playerStatsSeasonal.receiving_stats_season(year)
+    sacks = playerStatsSeasonal.sacks_by_qb_season(year)
     special = special_teams_tds(year)
 
     file_name = "NFL_Stats.xlsx"
@@ -144,11 +144,11 @@ if __name__ == "__main__":
                 user_year,
                 input("Team abbreviation: ").upper()
             )),
-            "PASSING": lambda: print(OffensiveStatsSeasonal.passing_stats_season(user_year)),
-            "RUSHING": lambda: print(OffensiveStatsSeasonal.rushing_stats_season(user_year)),
-            "RECEIVING": lambda: print(OffensiveStatsSeasonal.receiving_stats_season(user_year)),
+            "PASSING": lambda: print(playerStatsSeasonal.passing_stats_season(user_year)),
+            "RUSHING": lambda: print(playerStatsSeasonal.rushing_stats_season(user_year)),
+            "RECEIVING": lambda: print(playerStatsSeasonal.receiving_stats_season(user_year)),
             "SPECIAL TEAMS": lambda: print(special_teams_tds(user_year)),
-            "SACKS": lambda: print(OffensiveStatsSeasonal.sacks_by_qb_season(user_year)),
+            "SACKS": lambda: print(playerStatsSeasonal.sacks_by_qb_season(user_year)),
             "DEPTH CHARTS": lambda: print(depth_chart(
                 user_year,
                 input("Team abbreviation: ").upper(),
@@ -167,10 +167,10 @@ if __name__ == "__main__":
         week = int(input("What week (1-18): "))
 
         stat_functions = {
-            "PASSING": OffensiveStatsWeekly.passing_weekly,
-            "RUSHING": OffensiveStatsWeekly.rushing_weekly,
-            "RECEIVING": OffensiveStatsWeekly.receiving_weekly,
-            "SACKS": OffensiveStatsWeekly.sacks_qb_weekly
+            "PASSING": playerWeeklyStats.passing_weekly,
+            "RUSHING": playerWeeklyStats.rushing_weekly,
+            "RECEIVING": playerWeeklyStats.receiving_weekly,
+            "SACKS": playerWeeklyStats.sacks_qb_weekly
         }
 
         func = stat_functions.get(user_input)
