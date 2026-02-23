@@ -4,6 +4,7 @@ import os
 import OffensivePerTeam
 import OffensiveStatsSeasonal
 import OffensiveStatsWeekly
+import OffensiveTeamWeekly
 import pandas as pd
 
 
@@ -125,12 +126,12 @@ def teams():
 
 if __name__ == "__main__":
     print(teams())
-    print("Season or Weekly stats?")
+    print("Season, Weekly, Season Totals, or Weekly Totals?")
     question = input().upper()
 
     if question == "SEASON":
         print("Players    Schedules    Passing    Rushing    Receiving    Special Teams    Sacks    Depth Charts    All")
-    elif question == "WEEKLY" or question == "SEASON TOTALS":
+    elif question == "WEEKLY" or question == "SEASON TOTALS" or question == "WEEKLY TOTALS":
         print("Passing    Rushing    Receiving    Sacks")
 
     user_input = input("select option").upper()
@@ -191,3 +192,10 @@ if __name__ == "__main__":
             print(func(user_year))
         else:
             print("Invalid input. Choose PASSING, RUSHING, RECEIVING, or SACKS.")
+
+    elif question == "WEEKLY TOTALS":
+        user_team = input("What team (abbreviation): ").upper()
+        while user_team not in teams():
+            user_team = input("What team (abbreviation): ").upper()
+        user_week = int(input("Enter week to view week by week data: "))
+        print(OffensiveTeamWeekly.team_weekly_stats(user_team, user_year, user_week, user_input))

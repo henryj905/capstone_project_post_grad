@@ -1,27 +1,61 @@
 import OffensiveStatsWeekly
+import pandas as pd
 import MainFile
 
-def week_by_week_passing(team, year, week, stat):
-    stat = stat.upper()
+def team_weekly_stats(team, year, week, stat):
     team = team.upper()
-    options = {
-        "PASSING": OffensiveStatsWeekly.passing_weekly(year, week),
-        "RUSHING": OffensiveStatsWeekly.rushing_weekly(year, week),
-        "RECEIVING": OffensiveStatsWeekly.receiving_weekly(year, week),
-        "SACKS": OffensiveStatsWeekly.sacks_qb_weekly(year, week)
+    stat = stat.upper()
+
+    data_sets = {
+        "PASSING": OffensiveStatsWeekly.passing_weekly,
+        'RUSHING': OffensiveStatsWeekly.rushing_weekly,
+        'RECEIVING': OffensiveStatsWeekly.receiving_weekly,
+        'SACKS': OffensiveStatsWeekly.sacks_qb_weekly
     }
+    data = []
+    while week!=0:
+        func = data_sets.get(stat)
+        function = func(year, week)
 
-    if team not in MainFile.teams():
-        return f"Use team abbreviations"
-    if year < 2017:
-        return f"Year not in allowed range (2017 - 2024)"
-    if week < 0:
-        return f"Week invalid, cannot be negative"
-    if stat not in options :
-        return f"stat not in options: {options}"
-    if week == 1:
-        return
+        function = function.drop(columns=["player_id", "player_name"])
 
-    return
+        function = function.groupby("recent_team", as_index=False).sum(numeric_only=True)
+        data.append(function)
+        week -= 1
 
-print(week_by_week_passing('was', 2024, 1, 'passing'))
+    function = pd.concat(data, ignore_index=True)
+    dict = {}
+    if stat == "PASSING":
+        dict = {
+            "passing_yards": "sum",
+            "completions": "sum",
+            "attempts": "sum",
+            "passing_tds": "sum",
+            "interceptions": "sum",
+            "passer_rating": "mean"  # average passer rating
+        }
+    elif stat == "RUSHING":
+        dict = {
+            "carries": "sum",
+            "rushing_yards": "sum",
+            "rushing_tds": "sum",
+            "rushing_fumbles": "sum",
+            "efficiency": "mean"
+        }
+    elif stat == "RECEIVING":
+        dict = {
+            "receptions": "sum",
+            "targets": "sum",
+            "receiving_yards": "sum",
+            "receiving_tds": "sum",
+        }
+    elif stat == "SACKS":
+        dict = {
+            "sacks": "sum",
+            "sack_yards": "sum",
+            "sack_fumbles": "sum",
+        }
+
+    function = function.groupby("recent_team", as_index=False).agg(dict)
+    function = function[function["recent_team"] == team]
+    return function

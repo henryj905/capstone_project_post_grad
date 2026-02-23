@@ -20,7 +20,7 @@ def passing_weekly(year, week):
     weekly = weekly[weekly["attempts"] > 0]
     weekly = weekly[weekly["week"] == week]
 
-    return weekly.sort_values(["recent_team", "position", "player_name"]).to_string(index=False)
+    return weekly.sort_values(["recent_team", "position", "player_name"])
 
 def rushing_weekly(year, week):
     pd.set_option('display.max_rows', None)
@@ -40,7 +40,7 @@ def rushing_weekly(year, week):
     weekly = weekly[weekly["carries"] > 0]
     weekly = weekly[weekly["week"] == week]
 
-    return weekly.sort_values(["recent_team", "position", "player_name"]).to_string(index=False)
+    return weekly.sort_values(["recent_team", "position", "player_name"])
 
 
 def receiving_weekly(year, week):
@@ -54,7 +54,7 @@ def receiving_weekly(year, week):
     weekly = weekly[weekly["targets"] > 0]
     weekly = weekly[weekly["week"] == week]
 
-    return weekly.sort_values(["recent_team", "position", "player_name"]).to_string(index=False)
+    return weekly.sort_values(["recent_team", "position", "player_name"])
 
 def sacks_qb_weekly(year, week):
     pd.set_option('display.max_rows', None)
@@ -64,4 +64,4 @@ def sacks_qb_weekly(year, week):
 
     sacks = sacks[sacks["sacks"] > 0]
     sacks = sacks[sacks["week"] == week]
-    return sacks.sort_values(["recent_team", "position", "player_name"]).to_string(index=False)
+    return sacks.sort_values(["recent_team", "position", "player_name"])
