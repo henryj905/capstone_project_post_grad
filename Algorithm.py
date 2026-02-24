@@ -4,7 +4,7 @@ import MainFile
 
 
 def week_opponent(year, team, week):
-    stats = OffensivePerTeam.team_passing_season(year)
+    stats = OffensivePerTeam.team_passing_season(team, year)
     schedule = MainFile.team_schedule(year, team)
 
     schedule = schedule[schedule["week"] == week]
@@ -15,6 +15,65 @@ def week_opponent(year, team, week):
         opponent = schedule["home_team"].values[0]
 
     return opponent
+
+
+def passing_compare(team1, team2, team1stats, team2stats):
+    results = {}
+
+    for col in team1stats.select_dtypes(include="number").columns:
+
+        team1passing = team1stats[col].iloc[0]
+        team2passing = team2stats[col].iloc[0]
+
+        if team1passing > team2passing:
+            winner = team1
+        elif team1passing < team2passing:
+            winner = team2
+        else:
+            winner = "TIE"
+
+        results[col] = winner
+    return results
+
+
+def rushing_compare(team1, team2, team1stats, team2stats):
+    results = {}
+
+    for col in team1stats.select_dtypes(include="number").columns:
+
+        team1rushing = team1stats[col].iloc[0]
+        team2rushing = team2stats[col].iloc[0]
+
+        if team1rushing > team2rushing:
+            winner = team1
+        elif team1rushing < team2rushing:
+            winner = team2
+        else:
+            winner = "TIE"
+
+        results[col] = winner
+    return results
+
+
+def receiving_compare(team1, team2, team1stats, team2stats):
+    results = {}
+
+    for col in team1stats.select_dtypes(include="number").columns:
+
+        team1receiving = team1stats[col].iloc[0]
+        team2receiving = team2stats[col].iloc[0]
+
+        if team1receiving > team2receiving:
+            winner = team1
+        elif team1receiving < team2receiving:
+            winner = team2
+        else:
+            winner = "TIE"
+
+        results[col] = winner
+
+    return results
+
 
 def compare_year(team1, team2, year, week, stat):
     stat = stat.upper()
@@ -37,22 +96,14 @@ def compare_year(team1, team2, year, week, stat):
         team1Stats = OffensiveTeamWeekly.team_weekly_stats(team1, year, week, stat)
         team2Stats = OffensiveTeamWeekly.team_weekly_stats(team2, year, week, stat)
 
-    team1passing = team1Stats["passing_yards"].iloc[0]
-    team2passing = team2Stats["passing_yards"].iloc[0]
+    passing = passing_compare(team1, team2, team1Stats, team2Stats)
+    rushing = rushing_compare(team1, team2, team1Stats, team2Stats)
+    receiving = receiving_compare(team1, team2, team1Stats, team2Stats)
 
-    if team1passing > team2passing:
-        passing_compare = team1
-    else:
-        passing_compare = team2
-
-    return passing_compare
-
-def points_for_passing(year, team, week):
-    opponent = week_opponent(year, team, week)
-
-    return None
+    return passing, rushing, receiving
 
 
 if __name__ == "__main__":
-#    print(week_opponent(2019, 'bal', 13))
-    print(compare_year('was', 'bal', 2024, 1, 'passing'))
+    myteam = 'was'
+    opponent = week_opponent(2024, 'was', 1)
+    print(compare_year('was', opponent, 2024, 1))
