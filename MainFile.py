@@ -32,21 +32,6 @@ def team_schedule(year, team_abbr):
     return schedule
 
 
-def special_teams_tds(year):
-    pd.set_option('display.max_rows', None)
-    seasonal_data = nfl.import_seasonal_data([year])
-    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team"])
-    player_names = weekly.drop_duplicates(subset="player_id")
-    seasonal_with_names = seasonal_data.merge(
-        player_names,
-        on="player_id",
-        how="left"
-    )
-    total = seasonal_with_names[seasonal_with_names["special_teams_tds"] > 0]
-    total = total[["player_id", "player_name", "recent_team", "special_teams_tds"]].sort_values("recent_team")
-    return total
-
-
 def depth_chart(year, team_abbr, week_num):
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
@@ -66,7 +51,7 @@ def to_excel(year):
     rushing = playerStatsSeasonal.rushing_stats_season(year)
     receiving = playerStatsSeasonal.receiving_stats_season(year)
     sacks = playerStatsSeasonal.sacks_by_qb_season(year)
-    special = special_teams_tds(year)
+    special = playerStatsSeasonal.special_teams_tds(year)
 
     file_name = "NFL_Stats.xlsx"
     if os.path.exists(file_name):

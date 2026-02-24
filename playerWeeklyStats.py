@@ -65,3 +65,16 @@ def sacks_qb_weekly(year, week):
     sacks = sacks[sacks["sacks"] > 0]
     sacks = sacks[sacks["week"] == week]
     return sacks.sort_values(["recent_team", "position", "player_name"])
+
+
+def special_tds(year, week):
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    special = nfl.import_weekly_data([year])
+    special = special[["week", "player_id", "player_name", "recent_team", "special_teams_tds"]]
+
+    special = special[special["special_teams_tds"] > 0]
+    special = special[special["week"] == week]
+
+    return special.sort_values(["recent_team", "player_name"])
+

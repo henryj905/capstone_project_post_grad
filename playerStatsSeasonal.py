@@ -114,5 +114,23 @@ def sacks_by_qb_season(year):
     sacks = seasonal_with_names[seasonal_with_names["sacks"] > 0]
     sacks = sacks[["player_id", "player_name", "recent_team", "sacks", "sack_yards", "sack_fumbles",
                    "sack_fumbles_lost"]].sort_values("recent_team")
-    sacks = sacks
     return sacks
+
+
+def special_teams_tds(year):
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+
+    seasonal_data = nfl.import_seasonal_data([year])
+    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team"]).drop_duplicates()
+
+    seasonal_data = seasonal_data.merge(
+        weekly,
+        on="player_id",
+        how="left"
+    )
+    seasonal_data = seasonal_data[["player_id", "player_name", "recent_team", "special_teams_tds"]].sort_values("recent_team")
+
+    seasonal_data = seasonal_data[seasonal_data["special_teams_tds"] > 0]
+
+    return seasonal_data

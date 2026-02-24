@@ -78,9 +78,23 @@ def team_sacks_season(team, year):
         "sack_fumbles": "sum",
         "sack_fumbles_lost": "sum"
     })
-    team_stats = team_stats.rename(columns={"recent_team": "team_abbr"})
-    team_stats = team_stats[team_stats["team"] == team]
     team_stats["fumble_lost_ratio"] = (team_stats["sack_fumbles_lost"]/team_stats["sack_fumbles"]).round(2)
 
+
+    return team_stats
+
+def team_special_tds_season(team, year):
+    team = team.upper()
+    pd.set_option('display.max_columns', None)
+
+    data = playerStatsSeasonal.special_teams_tds(year)
+    data = data.rename(columns={"recent_team": "team"})
+    team_stats = data[data["team"] == team]
+    team_stats = team_stats.groupby("team", as_index=False).agg({
+        "special_teams_tds": "sum"
+    })
+
+    if team_stats.empty:
+        return "No special teams touchdowns"
 
     return team_stats

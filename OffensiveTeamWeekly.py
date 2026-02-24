@@ -10,7 +10,8 @@ def team_weekly_stats(team, year, week, stat):
         "PASSING": playerWeeklyStats.passing_weekly,
         'RUSHING': playerWeeklyStats.rushing_weekly,
         'RECEIVING': playerWeeklyStats.receiving_weekly,
-        'SACKS': playerWeeklyStats.sacks_qb_weekly
+        'SACKS': playerWeeklyStats.sacks_qb_weekly,
+        'SPECIAL': playerWeeklyStats.special_tds
     }
     data = []
     while week!=0:
@@ -54,6 +55,10 @@ def team_weekly_stats(team, year, week, stat):
             "sacks": "sum",
             "sack_yards": "sum",
             "sack_fumbles": "sum",
+        }
+    elif stat == "SPECIAL":
+        dict = {
+            "special_teams_tds": "sum"
         }
 
     function = function.groupby("recent_team", as_index=False).agg(dict)
