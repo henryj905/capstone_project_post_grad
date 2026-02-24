@@ -25,12 +25,22 @@ def passing_compare(team1, team2, team1stats, team2stats):
         team1passing = team1stats[col].iloc[0]
         team2passing = team2stats[col].iloc[0]
 
-        if team1passing > team2passing:
-            winner = team1
-        elif team1passing < team2passing:
-            winner = team2
+        if col == "interceptions":
+            print(team1, team1passing, team2, team2passing)
+            if team1passing > team2passing:
+                winner = team2
+            elif team1passing < team2passing:
+                winner = team1
+            else:
+                winner = "TIE"
+
         else:
-            winner = "TIE"
+            if team1passing > team2passing:
+                winner = team1
+            elif team1passing < team2passing:
+                winner = team2
+            else:
+                winner = "TIE"
 
         results[col] = winner
     return results
@@ -44,12 +54,21 @@ def rushing_compare(team1, team2, team1stats, team2stats):
         team1rushing = team1stats[col].iloc[0]
         team2rushing = team2stats[col].iloc[0]
 
-        if team1rushing > team2rushing:
-            winner = team1
-        elif team1rushing < team2rushing:
-            winner = team2
+        if col == "rushing_fumbles":
+            if team1rushing > team2rushing:
+                winner = team2
+            elif team1rushing < team2rushing:
+                winner = team1
+            else:
+                winner = "TIE"
+
         else:
-            winner = "TIE"
+            if team1rushing > team2rushing:
+                winner = team1
+            elif team1rushing < team2rushing:
+                winner = team2
+            else:
+                winner = "TIE"
 
         results[col] = winner
     return results
@@ -59,6 +78,7 @@ def receiving_compare(team1, team2, team1stats, team2stats):
     results = {}
 
     for col in team1stats.select_dtypes(include="number").columns:
+
 
         team1receiving = team1stats[col].iloc[0]
         team2receiving = team2stats[col].iloc[0]
@@ -79,14 +99,14 @@ def compare_year(team1, team2, year, week, stat):
     stat = stat.upper()
     team1 = team1.upper()
     team2 = team2.upper()
-    team1Stats = ""
-    team2Stats = ""
+
     if week < 2:
         stat_functions = {
             "PASSING": OffensivePerTeam.team_passing_season,
             "RUSHING": OffensivePerTeam.team_rushing_season,
             "RECEIVING": OffensivePerTeam.team_receiving_season,
-            "SACKS": OffensivePerTeam.team_sacks_season
+            "SACKS": OffensivePerTeam.team_sacks_season,
+            "SPECIAL": OffensivePerTeam.team_special_tds_season
         }
         func = stat_functions.get(stat)
         team1Stats = func(team1, year)
@@ -96,14 +116,20 @@ def compare_year(team1, team2, year, week, stat):
         team1Stats = OffensiveTeamWeekly.team_weekly_stats(team1, year, week, stat)
         team2Stats = OffensiveTeamWeekly.team_weekly_stats(team2, year, week, stat)
 
-    passing = passing_compare(team1, team2, team1Stats, team2Stats)
-    rushing = rushing_compare(team1, team2, team1Stats, team2Stats)
-    receiving = receiving_compare(team1, team2, team1Stats, team2Stats)
+    return_options = {
+        "PASSING": passing_compare,
+        "RUSHING": rushing_compare,
+        "RECEIVING": receiving_compare
+    }
+    func = return_options.get(stat)
 
-    return passing, rushing, receiving
+    return func(team1, team2, team1Stats, team2Stats)
 
 
 if __name__ == "__main__":
+    year = 2024
+    week = 2
     myteam = 'was'
-    opponent = week_opponent(2024, 'was', 1)
-    print(compare_year('was', opponent, 2024, 1))
+    stat = 'receiving'
+    opponent = week_opponent(year, 'was', week)
+    print(compare_year('was', opponent, year, week, stat))
