@@ -113,6 +113,10 @@ if __name__ == "__main__":
     print(teams())
     print("Season, Weekly, Season Totals, or Weekly Totals?")
     question = input().upper()
+    user_team = input("select team abbr: ").upper()
+    while user_team not in teams():
+        user_team = input("What team (abbreviation): ").upper()
+
 
     if question == "SEASON":
         print("Players    Schedules    Passing    Rushing    Receiving    Special Teams    Sacks    Depth Charts    All")
@@ -132,7 +136,7 @@ if __name__ == "__main__":
             "PASSING": lambda: print(playerStatsSeasonal.passing_stats_season(user_year)),
             "RUSHING": lambda: print(playerStatsSeasonal.rushing_stats_season(user_year)),
             "RECEIVING": lambda: print(playerStatsSeasonal.receiving_stats_season(user_year)),
-            "SPECIAL TEAMS": lambda: print(special_teams_tds(user_year)),
+            "SPECIAL TEAMS": lambda: print(playerStatsSeasonal.special_teams_tds(user_year)),
             "SACKS": lambda: print(playerStatsSeasonal.sacks_by_qb_season(user_year)),
             "DEPTH CHARTS": lambda: print(depth_chart(
                 user_year,
@@ -174,13 +178,10 @@ if __name__ == "__main__":
 
         func = stat_functions.get(user_input)
         if func:
-            print(func(user_year))
+            print(func(user_team, user_year))
         else:
             print("Invalid input. Choose PASSING, RUSHING, RECEIVING, or SACKS.")
 
     elif question == "WEEKLY TOTALS":
-        user_team = input("What team (abbreviation): ").upper()
-        while user_team not in teams():
-            user_team = input("What team (abbreviation): ").upper()
         user_week = int(input("Enter week to view week by week data: "))
         print(OffensiveTeamWeekly.team_weekly_stats(user_team, user_year, user_week, user_input))

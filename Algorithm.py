@@ -4,7 +4,6 @@ import MainFile
 
 
 def week_opponent(year, team, week):
-    stats = OffensivePerTeam.team_passing_season(team, year)
     schedule = MainFile.team_schedule(year, team)
 
     schedule = schedule[schedule["week"] == week]
@@ -78,8 +77,6 @@ def receiving_compare(team1, team2, team1stats, team2stats):
     results = {}
 
     for col in team1stats.select_dtypes(include="number").columns:
-
-
         team1receiving = team1stats[col].iloc[0]
         team2receiving = team2stats[col].iloc[0]
 
@@ -94,7 +91,50 @@ def receiving_compare(team1, team2, team1stats, team2stats):
 
     return results
 
+def sacks_compare(team1, team2, team1stats, team2stats):
+    results = {}
 
+    for col in team1stats.select_dtypes(include="number").columns:
+
+        team1sacks = team1stats[col].iloc[0]
+        team2sacks = team2stats[col].iloc[0]
+
+        if team1sacks > team2sacks:
+            winner = team2
+        elif team1sacks < team2sacks:
+            winner = team1
+        else:
+            winner = "TIE"
+
+        results[col] = winner
+    return results
+
+def special_compare(team1, team2, team1stats, team2stats):
+    results = {}
+
+    if team1stats.empty and team2stats.empty:
+        return {"special_teams_tds": "TIE"}
+
+    if team1stats.empty:
+        return {"special_teams_tds": team2}
+
+    if team2stats.empty:
+        return {"special_teams_tds": team1}
+
+    for col in team1stats.select_dtypes(include="number").columns:
+
+        team1special = team1stats[col].iloc[0]
+        team2special = team2stats[col].iloc[0]
+
+        if team1special > team2special:
+            winner = team1
+        elif team1special < team2special:
+            winner = team2
+        else:
+            winner = "TIE"
+
+        results[col] = winner
+    return results
 def compare_year(team1, team2, year, week, stat):
     stat = stat.upper()
     team1 = team1.upper()
@@ -119,7 +159,9 @@ def compare_year(team1, team2, year, week, stat):
     return_options = {
         "PASSING": passing_compare,
         "RUSHING": rushing_compare,
-        "RECEIVING": receiving_compare
+        "RECEIVING": receiving_compare,
+        "SACKS": sacks_compare,
+        "SPECIAL": special_compare
     }
     func = return_options.get(stat)
 
@@ -130,6 +172,6 @@ if __name__ == "__main__":
     year = 2024
     week = 2
     myteam = 'was'
-    stat = 'receiving'
-    opponent = week_opponent(year, 'was', week)
-    print(compare_year('was', opponent, year, week, stat))
+    stat = 'special'
+    opponent = week_opponent(year, myteam, week)
+    print(compare_year(myteam, opponent, year, week, stat))

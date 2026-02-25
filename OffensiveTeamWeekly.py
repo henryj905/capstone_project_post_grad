@@ -1,6 +1,5 @@
 import playerWeeklyStats
 import pandas as pd
-import MainFile
 
 def team_weekly_stats(team, year, week, stat):
     team = team.upper()
