@@ -19,3 +19,13 @@ def player_in_rushing(year, week, team):
     player_names = player_names[player_names["recent_team"] == team]
     player_names = player_names.drop(columns = ["week", "recent_team", "carries"])
     return player_names
+
+def player_in_receiving(year, week, team):
+    team = team.upper()
+
+    player_names = nfl.import_weekly_data([year], columns=["week", "recent_team", "player_name", "targets"])
+    player_names = player_names[player_names["week"] == week]
+    player_names = player_names[player_names["targets"] > 0]
+    player_names = player_names[player_names["recent_team"] == team]
+    player_names = player_names.drop(columns = ["week", "recent_team", "targets"])
+    return player_names

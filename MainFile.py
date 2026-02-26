@@ -42,7 +42,7 @@ def depth_chart(year, team_abbr, week_num):
     data = data[data["team"] == team_abbr]
     data = data[data["week"] == week_num]
 
-    return data.sort_values(["week", "team", "depth_chart_position"]).to_string(index=False)
+    return data.sort_values(["week", "team", "depth_chart_position"])
 
 
 def to_excel(year):
@@ -51,7 +51,7 @@ def to_excel(year):
     rushing = playerStatsSeasonal.rushing_stats_season(year)
     receiving = playerStatsSeasonal.receiving_stats_season(year)
     sacks = playerStatsSeasonal.sacks_by_qb_season(year)
-    special = playerStatsSeasonal.special_teams_tds(year)
+    special = playerStatsSeasonal.special_teams_tds_season(year)
 
     file_name = "NFL_Stats.xlsx"
     if os.path.exists(file_name):
@@ -136,7 +136,7 @@ if __name__ == "__main__":
             "PASSING": lambda: print(playerStatsSeasonal.passing_stats_season(user_year)),
             "RUSHING": lambda: print(playerStatsSeasonal.rushing_stats_season(user_year)),
             "RECEIVING": lambda: print(playerStatsSeasonal.receiving_stats_season(user_year)),
-            "SPECIAL TEAMS": lambda: print(playerStatsSeasonal.special_teams_tds(user_year)),
+            "SPECIAL TEAMS": lambda: print(playerStatsSeasonal.special_teams_tds_season(user_year)),
             "SACKS": lambda: print(playerStatsSeasonal.sacks_by_qb_season(user_year)),
             "DEPTH CHARTS": lambda: print(depth_chart(
                 user_year,

@@ -1,7 +1,7 @@
 import nfl_data_py as nfl
 import pandas as pd
 
-def passing_weekly(year, week):
+def passing_weekly(year, week, name):
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     weekly = nfl.import_weekly_data([year])
@@ -19,10 +19,10 @@ def passing_weekly(year, week):
 
     weekly = weekly[weekly["attempts"] > 0]
     weekly = weekly[weekly["week"] == week]
+    weekly = weekly[weekly["player_name"]==name]
+    return weekly.sort_values(["recent_team", "position"])
 
-    return weekly.sort_values(["recent_team", "position", "player_name"])
-
-def rushing_weekly(year, week):
+def rushing_weekly(year, week, name):
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     weekly = nfl.import_weekly_data([year])
@@ -39,11 +39,13 @@ def rushing_weekly(year, week):
 
     weekly = weekly[weekly["carries"] > 0]
     weekly = weekly[weekly["week"] == week]
+    weekly = weekly[weekly["player_name"]==name]
+
 
     return weekly.sort_values(["recent_team", "position", "player_name"])
 
 
-def receiving_weekly(year, week):
+def receiving_weekly(year, week, name):
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     weekly = nfl.import_weekly_data([year])
@@ -53,10 +55,12 @@ def receiving_weekly(year, week):
 
     weekly = weekly[weekly["targets"] > 0]
     weekly = weekly[weekly["week"] == week]
+    weekly = weekly[weekly["player_name"]==name]
+
 
     return weekly.sort_values(["recent_team", "position", "player_name"])
 
-def sacks_qb_weekly(year, week):
+def sacks_qb_weekly(year, week, name):
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     sacks = nfl.import_weekly_data([year])
@@ -64,10 +68,12 @@ def sacks_qb_weekly(year, week):
 
     sacks = sacks[sacks["sacks"] > 0]
     sacks = sacks[sacks["week"] == week]
+    sacks = sacks[sacks["player_name"]==name]
+
     return sacks.sort_values(["recent_team", "position", "player_name"])
 
 
-def special_tds(year, week):
+def special_tds_weekly(year, week, name):
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     special = nfl.import_weekly_data([year])
@@ -75,6 +81,7 @@ def special_tds(year, week):
 
     special = special[special["special_teams_tds"] > 0]
     special = special[special["week"] == week]
+    special = special[special["player_name"]==name]
 
     return special.sort_values(["recent_team", "player_name"])
 

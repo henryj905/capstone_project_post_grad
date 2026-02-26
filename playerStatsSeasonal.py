@@ -117,7 +117,7 @@ def sacks_by_qb_season(year):
     return sacks
 
 
-def special_teams_tds(year):
+def special_teams_tds_season(year):
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
 
