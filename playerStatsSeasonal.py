@@ -2,7 +2,9 @@ import nfl_data_py as nfl
 import pandas as pd
 
 
-def passing_stats_season(year):
+def passing_stats_season(year, team):
+    team = team.upper()
+
     pd.set_option('display.max_rows', None)
     seasonal_data = nfl.import_seasonal_data([year])
     weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team",
@@ -30,11 +32,13 @@ def passing_stats_season(year):
         on="player_id",
         how="left"
     )
+    data = data[data["recent_team"] == team]
 
     return data[["player_name", "recent_team", "position", "passing_yards", "completions", "attempts", "completion_pct",
                  "passing_tds", "interceptions", "passer_rating"]].sort_values("recent_team")
 
-def rushing_stats_season(year):
+def rushing_stats_season(year, team):
+    team = team.upper()
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     seasonal_data = nfl.import_seasonal_data([year])
@@ -61,10 +65,15 @@ def rushing_stats_season(year):
     rushing_yards["YPC"] = (rushing_yards["rushing_yards"] / rushing_yards["carries"]).round(2)
     rushing_yards = rushing_yards[["player_name", "recent_team", "position", "carries", "rushing_yards", "YPC",
                                    "rushing_tds", "rushing_fumbles", "rushing_fumbles_lost", "efficiency"]]
+
+    rushing_yards = rushing_yards[rushing_yards["recent_team"] == team]
+
     return rushing_yards.sort_values("recent_team")
 
 
-def receiving_stats_season(year):
+def receiving_stats_season(year, team):
+    team = team.upper()
+
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
 
@@ -97,10 +106,14 @@ def receiving_stats_season(year):
 
     yac = yac.sort_values("targets")
     yac = yac
+    yac = yac[yac["recent_team"] == team]
+
     return yac.sort_values("recent_team")
 
 
-def sacks_by_qb_season(year):
+def sacks_by_qb_season(year, team):
+    team = team.upper()
+
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     seasonal_data = nfl.import_seasonal_data([year])
@@ -112,12 +125,15 @@ def sacks_by_qb_season(year):
         how="left"
     )
     sacks = seasonal_with_names[seasonal_with_names["sacks"] > 0]
+    sacks = sacks[sacks["recent_team"] == team]
+
     sacks = sacks[["player_id", "player_name", "recent_team", "sacks", "sack_yards", "sack_fumbles",
                    "sack_fumbles_lost"]].sort_values("recent_team")
     return sacks
 
 
-def special_teams_tds_season(year):
+def special_teams_tds_season(year, team):
+    team = team.upper()
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
 
@@ -130,6 +146,7 @@ def special_teams_tds_season(year):
         how="left"
     )
     seasonal_data = seasonal_data[["player_id", "player_name", "recent_team", "special_teams_tds"]].sort_values("recent_team")
+    seasonal_data = seasonal_data[seasonal_data["recent_team"] == team]
 
     seasonal_data = seasonal_data[seasonal_data["special_teams_tds"] > 0]
 

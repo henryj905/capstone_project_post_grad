@@ -137,50 +137,77 @@ def receiving_compare(team1, team2, year, week):
         })
     return team_stats
 
-def sacks_compare(team1, team2, team1stats, team2stats):
-    results = {}
 
-    for col in team1stats.select_dtypes(include="number").columns:
+def sacks_compare(team1, team2, year, week):
+    team1 = team1.upper()
+    team2 = team2.upper()
 
-        team1sacks = team1stats[col].iloc[0]
-        team2sacks = team2stats[col].iloc[0]
+    teams = [team1, team2]
+    team_stats = []
+    for team in teams:
+        dfs = []
 
-        if team1sacks > team2sacks:
-            winner = team2
-        elif team1sacks < team2sacks:
-            winner = team1
+        for _, row in InLists.player_in_sacks(year, week, team).iterrows():
+            df = playerWeeklyStats.sacks_qb_weekly(year, week, row["player_name"])
+            if not df.empty:
+                dfs.append(df)
+
+        if not dfs:
+            team_stats.append({
+                "sacks": 0,
+                "sack_yards": 0,
+                "sack_fumbles": 0,
+                "yards_per_sack": 0
+            })
+
         else:
-            winner = "TIE"
+            team_df = pd.concat(dfs, ignore_index=True)
+            print(list(team_df.columns))
+            total_sacks = team_df["sacks"].sum()
+            total_sack_yards = team_df["sack_yards"].sum()
+            total_fumbles = team_df["sack_fumbles"].sum()
 
-        results[col] = winner
-    return results
+            yps = (
+                total_sack_yards / total_sacks
+            ).round(2)
 
-def special_compare(team1, team2, team1stats, team2stats):
-    results = {}
+            team_stats.append({
+                "sacks": total_sacks,
+                "sack_yards": total_sack_yards,
+                "sack_fumbles": total_fumbles,
+                "yards_per_sack": yps
+            })
+    return team_stats
 
-    if team1stats.empty and team2stats.empty:
-        return {"special_teams_tds": "TIE"}
 
-    if team1stats.empty:
-        return {"special_teams_tds": team2}
+def special_compare(team1, team2, year, week):
+    team1 = team1.upper()
+    team2 = team2.upper()
 
-    if team2stats.empty:
-        return {"special_teams_tds": team1}
+    teams = [team1, team2]
+    team_stats = []
+    for team in teams:
+        dfs = []
 
-    for col in team1stats.select_dtypes(include="number").columns:
+        for _, row in InLists.player_in_special(year, week, team).iterrows():
+            df = playerWeeklyStats.special_tds_weekly(year, week, row["player_name"])
+            if not df.empty:
+                dfs.append(df)
 
-        team1special = team1stats[col].iloc[0]
-        team2special = team2stats[col].iloc[0]
+        if not dfs:
+            team_stats.append({
+                "special_teams_tds":0
+            })
 
-        if team1special > team2special:
-            winner = team1
-        elif team1special < team2special:
-            winner = team2
         else:
-            winner = "TIE"
+            team_df = pd.concat(dfs, ignore_index=True)
+            print(list(team_df.columns))
+            total_tds = team_df["special_teams_tds"].sum()
 
-        results[col] = winner
-    return results
+            team_stats.append({
+                "special_tams_tds": total_tds
+            })
+    return team_stats
 
 
 def compare_year(team1, team2, year, week, stat):
@@ -196,8 +223,8 @@ def compare_year(team1, team2, year, week, stat):
             "SPECIAL": playerWeeklyStats.special_tds_weekly
         }
         func = stat_functions.get(stat)
-        team1Stats = func(team1, year)
-        team2Stats = func(team2, year)
+        team1Stats = func(year, week, team1)
+        team2Stats = func(year, week, team2)
 
     else:
         stat_functions = {
