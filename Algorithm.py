@@ -210,10 +210,11 @@ def special_compare(team1, team2, year, week):
     return team_stats
 
 
-def compare_year(team1, team2, year, week, stat):
+def compare_year(team1, year, week, stat):
     stat = stat.upper()
     team1 = team1.upper()
-    team2 = team2.upper()
+    team2 = MainFile.return_opponent(year, team1, week)
+    print(team2)
     if week < 2:
         stat_functions = {
             "PASSING": playerWeeklyStats.passing_weekly,
@@ -235,8 +236,8 @@ def compare_year(team1, team2, year, week, stat):
             "SPECIAL": playerStatsSeasonal.special_teams_tds_season
         }
         func = stat_functions.get(stat)
-        team1Stats = func(team1, year)
-        team2Stats = func(team2, year)
+        team1Stats = func(year, team1)
+        team2Stats = func(year, team2)
     return_options = {
         "PASSING": passing_compare,
         "RUSHING": rushing_compare,
@@ -251,9 +252,8 @@ def compare_year(team1, team2, year, week, stat):
 if __name__ == "__main__":
     year = 2024
     week = 2
-    myteam = 'was'
-    stat = 'passing'
-    opponent = week_opponent(year, myteam, week)
-    result = compare_year(myteam, opponent, year, week, stat)
 
-    print(myteam, opponent, result)
+    myteam = "was"
+    stat = "passing"
+    result = compare_year(myteam, year, week, stat)
+

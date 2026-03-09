@@ -1,10 +1,6 @@
 import nfl_data_py as nfl
 import os
-
-import OffensivePerTeam
 import playerStatsSeasonal
-import playerWeeklyStats
-import OffensiveTeamWeekly
 import pandas as pd
 
 
@@ -31,6 +27,25 @@ def team_schedule(year, team_abbr):
     schedule = games[["week", "home_team", "away_team", "location"]]
     return schedule
 
+def team_schedule_pick_week(year, team_abbr, week):
+    schedule = team_schedule(year, team_abbr)
+    schedule = schedule[schedule["week"]==week]
+    return schedule
+
+def return_opponent(year, team_abbr, week):
+    team_abbr = team_abbr.upper()
+    schedule = team_schedule_pick_week(year, team_abbr, week)
+    opponent = ''
+
+    if schedule.empty:
+        opponent = "BYE"
+        return opponent
+    for _, row, in schedule.iterrows():
+        if row["home_team"]== team_abbr:
+            opponent = row["away_team"]
+        elif row["away_team"] == team_abbr:
+            opponent = row["home_team"]
+    return opponent
 
 def depth_chart(year, team_abbr, week_num):
     pd.set_option('display.max_rows', None)
@@ -45,13 +60,14 @@ def depth_chart(year, team_abbr, week_num):
     return data.sort_values(["week", "team", "depth_chart_position"])
 
 
-def to_excel(year):
+def to_excel(year, team):
+    team = team.upper()
     players = player_list(year)
-    passing = playerStatsSeasonal.passing_stats_season(year)
-    rushing = playerStatsSeasonal.rushing_stats_season(year)
-    receiving = playerStatsSeasonal.receiving_stats_season(year)
-    sacks = playerStatsSeasonal.sacks_by_qb_season(year)
-    special = playerStatsSeasonal.special_teams_tds_season(year)
+    passing = playerStatsSeasonal.passing_stats_season(year, team)
+    rushing = playerStatsSeasonal.rushing_stats_season(year, team)
+    receiving = playerStatsSeasonal.receiving_stats_season(year, team)
+    sacks = playerStatsSeasonal.sacks_by_qb_season(year, team)
+    special = playerStatsSeasonal.special_teams_tds_season(year, team)
 
     file_name = "NFL_Stats.xlsx"
     if os.path.exists(file_name):
@@ -108,80 +124,3 @@ def teams():
 
     return data["team_abbr"].tolist()
 
-
-if __name__ == "__main__":
-    print(teams())
-    print("Season, Weekly, Season Totals, or Weekly Totals?")
-    question = input().upper()
-    user_team = input("select team abbr: ").upper()
-    while user_team not in teams():
-        user_team = input("What team (abbreviation): ").upper()
-
-
-    if question == "SEASON":
-        print("Players    Schedules    Passing    Rushing    Receiving    Special Teams    Sacks    Depth Charts    All")
-    elif question == "WEEKLY" or question == "SEASON TOTALS" or question == "WEEKLY TOTALS":
-        print("Passing    Rushing    Receiving    Sacks")
-
-    user_input = input("select option").upper()
-    user_year = int(input("Enter season (2017-2024):\n"))
-
-    if question == "SEASON":
-        season_functions = {
-            "PLAYERS": lambda: print(player_list(user_year)),
-            "SCHEDULES": lambda: print(team_schedule(
-                user_year,
-                input("Team abbreviation: ").upper()
-            )),
-            "PASSING": lambda: print(playerStatsSeasonal.passing_stats_season(user_year)),
-            "RUSHING": lambda: print(playerStatsSeasonal.rushing_stats_season(user_year)),
-            "RECEIVING": lambda: print(playerStatsSeasonal.receiving_stats_season(user_year)),
-            "SPECIAL TEAMS": lambda: print(playerStatsSeasonal.special_teams_tds_season(user_year)),
-            "SACKS": lambda: print(playerStatsSeasonal.sacks_by_qb_season(user_year)),
-            "DEPTH CHARTS": lambda: print(depth_chart(
-                user_year,
-                input("Team abbreviation: ").upper(),
-                int(input("Pick week (1-18): "))
-            )),
-            "ALL": lambda: print(to_excel(user_year))
-        }
-
-        func = season_functions.get(user_input.upper())
-        if func:
-            func()
-        else:
-            print("Invalid input. Please select from options or QUIT.")
-
-    elif question == "WEEKLY":
-        week = int(input("What week (1-18): "))
-
-        stat_functions = {
-            "PASSING": playerWeeklyStats.passing_weekly,
-            "RUSHING": playerWeeklyStats.rushing_weekly,
-            "RECEIVING": playerWeeklyStats.receiving_weekly,
-            "SACKS": playerWeeklyStats.sacks_qb_weekly
-        }
-
-        func = stat_functions.get(user_input)
-        if func:
-            print(func(user_year, week))
-        else:
-            print("Invalid input. Choose PASSING, RUSHING, RECEIVING, or SACKS.")
-
-    elif question == "SEASON TOTALS":
-        stat_functions = {
-            "PASSING": OffensivePerTeam.team_passing_season,
-            "RUSHING": OffensivePerTeam.team_rushing_season,
-            "RECEIVING": OffensivePerTeam.team_receiving_season,
-            "SACKS": OffensivePerTeam.team_sacks_season
-        }
-
-        func = stat_functions.get(user_input)
-        if func:
-            print(func(user_team, user_year))
-        else:
-            print("Invalid input. Choose PASSING, RUSHING, RECEIVING, or SACKS.")
-
-    elif question == "WEEKLY TOTALS":
-        user_week = int(input("Enter week to view week by week data: "))
-        print(OffensiveTeamWeekly.team_weekly_stats(user_team, user_year, user_week, user_input))

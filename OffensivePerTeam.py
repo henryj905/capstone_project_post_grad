@@ -5,7 +5,7 @@ def team_passing_season(team, year):
     team = team.upper()
 
     pd.set_option('display.max_columns', None)
-    data = playerStatsSeasonal.passing_stats_season(year)
+    data = playerStatsSeasonal.passing_stats_season(year, team)
     data = data.rename(columns={"recent_team": "team"})
     team_stats = data[data["team"] == team]
     team_stats = team_stats.groupby("team", as_index=False).agg({
@@ -24,7 +24,7 @@ def team_rushing_season(team, year):
     team = team.upper()
 
     pd.set_option('display.max_columns', None)
-    data = playerStatsSeasonal.rushing_stats_season(year)
+    data = playerStatsSeasonal.rushing_stats_season(year, team)
     data = data.rename(columns={"recent_team": "team"})
     team_stats = data[data["team"] == team]
     team_stats = team_stats.groupby("team", as_index=False).agg({
@@ -46,7 +46,7 @@ def team_receiving_season(team, year):
     team = team.upper()
 
     pd.set_option('display.max_columns', None)
-    data = playerStatsSeasonal.receiving_stats_season(year)
+    data = playerStatsSeasonal.receiving_stats_season(year, team)
     data = data.rename(columns={"recent_team": "team"})
     team_stats = data[data["team"] == team]
     team_stats = team_stats.groupby("team", as_index=False).agg({
@@ -69,7 +69,7 @@ def team_receiving_season(team, year):
 def team_sacks_season(team, year):
     team = team.upper()
     pd.set_option('display.max_columns', None)
-    data = playerStatsSeasonal.sacks_by_qb_season(year)
+    data = playerStatsSeasonal.sacks_by_qb_season(year, team)
     data = data.rename(columns={"recent_team": "team"})
     team_stats = data[data["team"] == team]
     team_stats = team_stats.groupby("team", as_index=False).agg({
@@ -87,7 +87,7 @@ def team_special_tds_season(team, year):
     team = team.upper()
     pd.set_option('display.max_columns', None)
 
-    data = playerStatsSeasonal.special_teams_tds(year)
+    data = playerStatsSeasonal.special_teams_tds_season(year, team)
     data = data.rename(columns={"recent_team": "team"})
     team_stats = data[data["team"] == team]
     team_stats = team_stats.groupby("team", as_index=False).agg({

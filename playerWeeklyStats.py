@@ -84,4 +84,3 @@ def special_tds_weekly(year, week, name):
     special = special[special["player_name"]==name]
 
     return special.sort_values(["recent_team", "player_name"])
-

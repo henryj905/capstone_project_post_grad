@@ -10,12 +10,12 @@ def team_weekly_stats(team, year, week, stat):
         'RUSHING': playerWeeklyStats.rushing_weekly,
         'RECEIVING': playerWeeklyStats.receiving_weekly,
         'SACKS': playerWeeklyStats.sacks_qb_weekly,
-        'SPECIAL': playerWeeklyStats.special_tds
+        'SPECIAL': playerWeeklyStats.special_tds_weekly
     }
     data = []
     while week!=0:
         func = data_sets.get(stat)
-        function = func(year, week)
+        function = func(year, week, team)
 
         function = function.drop(columns=["player_id", "player_name"])
 
