@@ -5,7 +5,7 @@ import pandas as pd
 
 
 stats_using_averages = ["completion_percentage", "passer_rating", "efficiency", "yards_per_carry", "yards_per_reception", "yards_per_sack"]
-def passing_compare(team1, year, week):
+def passing_gather(team1, year, week):
     team1 = team1.upper()
 
     team_stats = []
@@ -46,7 +46,7 @@ def passing_compare(team1, year, week):
     return team_stats
 
 
-def rushing_compare(team1, year, week):
+def rushing_gather(team1, year, week):
     team1 = team1.upper()
 
     team_stats = []
@@ -83,7 +83,7 @@ def rushing_compare(team1, year, week):
     return team_stats
 
 
-def receiving_compare(team1, year, week):
+def receiving_gather(team1, year, week):
     team1 = team1.upper()
 
     team_stats = []
@@ -117,7 +117,7 @@ def receiving_compare(team1, year, week):
     return team_stats
 
 
-def sacks_compare(team1, year, week):
+def sacks_gather(team1, year, week):
     team1 = team1.upper()
 
     team_stats = []
@@ -155,7 +155,7 @@ def sacks_compare(team1, year, week):
     return team_stats
 
 
-def special_compare(team1, year, week):
+def special_gather(team1, year, week):
     team1 = team1.upper()
 
     team_stats = []
@@ -188,11 +188,11 @@ def gather_previous_weeks(team, year, week, stat):
     opponent = MainFile.return_opponent(year, team, week)
 
     stat_functions = {
-        "PASSING": passing_compare,
-        "RUSHING": rushing_compare,
-        "RECEIVING": receiving_compare,
-        "SACKS": sacks_compare,
-        "SPECIAL": special_compare
+        "PASSING": passing_gather,
+        "RUSHING": rushing_gather,
+        "RECEIVING": receiving_gather,
+        "SACKS": sacks_gather,
+        "SPECIAL": special_gather
     }
     if stat not in stat_functions:
         return "INVALID STAT CALL"
