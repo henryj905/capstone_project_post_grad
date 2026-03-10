@@ -5,6 +5,7 @@ import pandas as pd
 
 
 stats_using_averages = ["completion_percentage", "passer_rating", "efficiency", "yards_per_carry", "yards_per_reception", "yards_per_sack"]
+bad_stats = ["interceptions", "rushing_fumbles", "sack_fumbles", "yards_per_sack"]
 def passing_gather(team1, year, week):
     team1 = team1.upper()
 
@@ -224,24 +225,60 @@ def combine_weeks(stats_list):
     df = pd.DataFrame(flattened)
     numeric_cols = df.select_dtypes(include="number").columns.tolist()
     sum_cols = [c for c in numeric_cols if c not in stats_using_averages]
+    avg_cols = [c for c in numeric_cols if c in stats_using_averages]
     combined = {}
 
     for col in sum_cols:
         combined[col] = df[col].sum()
-    for col in stats_using_averages:
+    for col in avg_cols:
         combined[col] = df[col].mean().round(2)
 
     return combined
+
+
+def compare_weeks(team_stats, opponent_stats):
+    team_score = 0
+    opponent_score = 0
+
+    for key in team_stats:
+        if key not in opponent_stats:
+            continue
+    # may hard code here to have different values assigned to different stats
+    # for example 3 points for passing yards but 1 for completions
+        if key in bad_stats:
+            print(key)
+            if team_stats[key] < opponent_stats[key]:
+                team_score += 1
+            elif team_stats[key] > opponent_stats[key]:
+                opponent_score += 1
+        else:
+            print(key)
+            if team_stats[key] > opponent_stats[key]:
+                team_score += 1
+            elif team_stats[key] < opponent_stats[key]:
+                opponent_score += 1
+
+    return team_score, opponent_score
 
 if __name__ == "__main__":
     year = 2024
     week = 3
     myteam = "was"
-    stat = "passing"
-    team1, team2 = gather_previous_weeks(myteam, year, week, stat)
-    team1 = combine_weeks(team1)
-    team2 = combine_weeks(team2)
+    stats = ["passing", "rushing", "receiving", "sacks", "special"]
 
-    print(team1)
-    print(team2)
+    team1stat = []
+    team2stat = []
+    for stat in stats:
+        team1, team2 = gather_previous_weeks(myteam, year, week, stat)
+        team1 = combine_weeks(team1)
+        team2 = combine_weeks(team2)
+        team1stat.append(team1)
+        team2stat.append(team2)
 
+    team1score = 0
+    team2score = 0
+    for t1, t2 in zip(team1stat, team2stat):
+        t1score, t2score = compare_weeks(t1, t2)
+        team1score += t1score
+        team2score += t2score
+    print(team1score, team2score)
