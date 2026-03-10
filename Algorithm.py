@@ -182,7 +182,7 @@ def special_compare(team1, year, week):
 
 myteamstats = []
 opponentstats = []
-def compare_weeks(team, year, week, stat):
+def gather_previous_weeks(team, year, week, stat):
     team = team.upper()
     stat = stat.upper()
     opponent = MainFile.return_opponent(year, team, week)
@@ -201,7 +201,7 @@ def compare_weeks(team, year, week, stat):
     if week == 1:
         return [], []
 
-    team_prev, opp_prev = compare_weeks(team, year, week - 1, stat)
+    team_prev, opp_prev = gather_previous_weeks(team, year, week - 1, stat)
     team_last_week = func(team, year, week - 1)
     opp_last_week = func(opponent, year, week - 1)
     team_prev.append(team_last_week)
@@ -210,12 +210,38 @@ def compare_weeks(team, year, week, stat):
     return team_prev, opp_prev
 
 
+def combine_weeks(stats_list):
+    flattened = []
+    for week in stats_list:
+        if isinstance(week, list):
+            flattened.extend(week)
+        else:
+            flattened.append(week)
+
+    if not flattened:
+        return {}
+
+    df = pd.DataFrame(flattened)
+    numeric_cols = df.select_dtypes(include="number").columns.tolist()
+    sum_cols = [c for c in numeric_cols if c not in stats_using_averages]
+    combined = {}
+
+    for col in sum_cols:
+        combined[col] = df[col].sum()
+    for col in stats_using_averages:
+        combined[col] = df[col].mean().round(2)
+
+    return combined
+
 if __name__ == "__main__":
     year = 2024
     week = 3
     myteam = "was"
     stat = "passing"
-    team1, team2 = compare_weeks(myteam, year, week, stat)
+    team1, team2 = gather_previous_weeks(myteam, year, week, stat)
+    team1 = combine_weeks(team1)
+    team2 = combine_weeks(team2)
+
     print(team1)
     print(team2)
 
