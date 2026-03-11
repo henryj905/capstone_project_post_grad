@@ -5,7 +5,7 @@ import pandas as pd
 
 
 stats_using_averages = ["completion_percentage", "passer_rating", "efficiency", "yards_per_carry", "yards_per_reception", "yards_per_sack"]
-bad_stats = ["interceptions", "rushing_fumbles", "sack_fumbles", "yards_per_sack"]
+bad_stats = ["interceptions", "rushing_fumbles", "sacks", "sack_yards", "sack_fumbles", "yards_per_sack"]
 def passing_gather(team1, year, week):
     team1 = team1.upper()
 
@@ -236,29 +236,72 @@ def combine_weeks(stats_list):
     return combined
 
 
+def TorFStatCompare(teamstats, opponent_stats, stat):
+    if stat == "completions":
+        return teamstats["completions"] > opponent_stats["completions"]
+    if stat == "attempts":
+        return teamstats["attempts"] > opponent_stats["attempts"]
+    if stat == "passing_yards":
+        return teamstats["passing_yards"] > opponent_stats["passing_yards"]
+    if stat == "passing_tds":
+        return teamstats["passing_tds"] > opponent_stats["passing_tds"]
+    if stat == "interceptions":
+        return teamstats["interceptions"] > opponent_stats["interceptions"]
+    if stat == "completion_percentage":
+        return teamstats["completion_percentage"] > opponent_stats["completion_percentage"]
+    if stat == "passer_rating":
+        return teamstats["passer_rating"] > opponent_stats["passer_rating"]
+    if stat == "carries":
+        return teamstats["carries"] > opponent_stats["carries"]
+    if stat == "rushing_yards":
+        return teamstats["rushing_yards"] > opponent_stats["rushing_yards"]
+    if stat == "rushing_tds":
+        return teamstats["rushing_tds"] > opponent_stats["rushing_tds"]
+    if stat == "fumbles":
+        return teamstats["fumbles"] > opponent_stats["fumbles"]
+    if stat == "yards_per_carry":
+        return teamstats["yards_per_carry"] > opponent_stats["yards_per_carry"]
+    if stat == "efficiency":
+        return teamstats["efficiency"] > opponent_stats["efficiency"]
+    if stat == "targets":
+        return teamstats["targets"] > opponent_stats["targets"]
+    if stat == "receiving_yards":
+        return teamstats["receiving_yards"] > opponent_stats["receiving_yards"]
+    if stat == "receiving_tds":
+        return teamstats["receiving_tds"] > opponent_stats["receiving_tds"]
+    if stat == "yards_per_reception":
+        return teamstats["yards_per_reception"] > opponent_stats["yards_per_reception"]
+    if stat == "sacks":
+        return teamstats["sacks"] > opponent_stats["sacks"]
+    if stat == "sack_yards":
+        return teamstats["sack_yards"] > opponent_stats["sack_yards"]
+    if stat == "sack_fumbles":
+        return teamstats["sack_fumbles"] > opponent_stats["sack_fumbles"]
+    if stat == "yards_per_sack":
+        return teamstats["yards_per_sack"] > opponent_stats["yards_per_sack"]
+    if stat == "special_teams_tds":
+        return teamstats["special_teams_tds"] > opponent_stats["special_teams_tds"]
+
 def compare_weeks(team_stats, opponent_stats):
     team_score = 0
     opponent_score = 0
-
+    T_or_F = []
     for key in team_stats:
-        if key not in opponent_stats:
-            continue
-    # may hard code here to have different values assigned to different stats
-    # for example 3 points for passing yards but 1 for completions
+        add = [TorFStatCompare(team_stats, opponent_stats, key)]
         if key in bad_stats:
-            print(key)
-            if team_stats[key] < opponent_stats[key]:
-                team_score += 1
-            elif team_stats[key] > opponent_stats[key]:
-                opponent_score += 1
-        else:
-            print(key)
-            if team_stats[key] > opponent_stats[key]:
-                team_score += 1
-            elif team_stats[key] < opponent_stats[key]:
-                opponent_score += 1
 
+            for value in add:
+                if value == False:
+                    team_score +=1
+                else: opponent_score += 1
+        else:
+            for value in add:
+                if value == True:
+                    team_score += 1
+                else: opponent_score +=1
+        print(key, team_score, opponent_score)
     return team_score, opponent_score
+
 
 if __name__ == "__main__":
     year = 2024
