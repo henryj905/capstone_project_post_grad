@@ -6,6 +6,7 @@ import pandas as pd
 
 stats_using_averages = ["completion_percentage", "passer_rating", "efficiency", "yards_per_carry", "yards_per_reception", "yards_per_sack"]
 bad_stats = ["interceptions", "fumbles", "sacks", "sack_yards", "sack_fumbles", "yards_per_sack"]
+previous_combines = {}
 def passing_gather(team1, year, week):
     team1 = team1.upper()
 
@@ -198,13 +199,20 @@ def gather_previous_weeks(team, year, week, stat):
     if stat not in stat_functions:
         return "INVALID STAT CALL"
 
-    func = stat_functions.get(stat)
+    func = stat_functions[stat]
     if week == 1:
         return [], []
 
     team_prev, opp_prev = gather_previous_weeks(team, year, week - 1, stat)
+
     team_last_week = func(team, year, week - 1)
+    if team_last_week is None:
+        team_last_week = []
+
     opp_last_week = func(opponent, year, week - 1)
+    if opp_last_week is None:
+        opp_last_week = []
+
     team_prev.append(team_last_week)
     opp_prev.append(opp_last_week)
 
@@ -215,8 +223,8 @@ def combine_weeks(stats_list):
     flattened = []
     for week in stats_list:
         if isinstance(week, list):
-            flattened.extend(week)
-        else:
+            flattened.extend([x for x in week if x is not None])
+        elif week is not None:
             flattened.append(week)
 
     if not flattened:
@@ -326,9 +334,9 @@ def compare_weeks(team_stats, opponent_stats):
                     opponent_score += 1
             if key == "passing_yards":
                 if add == True:
-                    team_score += 5
+                    team_score += 4
                 else:
-                    opponent_score += 5
+                    opponent_score += 4
             if key == "passing_tds":
                 if add == True:
                     team_score += 3
@@ -336,9 +344,9 @@ def compare_weeks(team_stats, opponent_stats):
                     opponent_score += 3
             if key == "completion_percentage":
                 if add == True:
-                    team_score += 2
+                    team_score += 3
                 else:
-                    opponent_score += 2
+                    opponent_score += 3
             if key == "passer_rating":
                 if add == True:
                     team_score += 3
@@ -407,7 +415,7 @@ def return_winner(team1, team1score, team2, team2score):
 
 if __name__ == "__main__":
     year = 2024
-    week = 6
+    week = 3
     myteam = "was".upper()
     stats = ["passing", "rushing", "receiving", "sacks", "special"]
     team1stat = []
