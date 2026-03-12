@@ -5,7 +5,7 @@ import pandas as pd
 
 
 stats_using_averages = ["completion_percentage", "passer_rating", "efficiency", "yards_per_carry", "yards_per_reception", "yards_per_sack"]
-bad_stats = ["interceptions", "rushing_fumbles", "sacks", "sack_yards", "sack_fumbles", "yards_per_sack"]
+bad_stats = ["interceptions", "fumbles", "sacks", "sack_yards", "sack_fumbles", "yards_per_sack"]
 def passing_gather(team1, year, week):
     team1 = team1.upper()
 
@@ -66,7 +66,7 @@ def rushing_gather(team1, year, week):
     total_yards = team_df["rushing_yards"].sum()
     total_tds = team_df["rushing_tds"].sum()
     total_fumbles = team_df["rushing_fumbles"].sum()
-    mean_efficiency = team_df["efficiency"].mean().round(2)
+    mean_efficiency = round(team_df["efficiency"].mean(), 2)
 
     ypc = (
         total_yards / total_carries
@@ -282,33 +282,134 @@ def TorFStatCompare(teamstats, opponent_stats, stat):
     if stat == "special_teams_tds":
         return teamstats["special_teams_tds"] > opponent_stats["special_teams_tds"]
 
+
 def compare_weeks(team_stats, opponent_stats):
     team_score = 0
     opponent_score = 0
-    T_or_F = []
     for key in team_stats:
-        add = [TorFStatCompare(team_stats, opponent_stats, key)]
+        add = TorFStatCompare(team_stats, opponent_stats, key)
         if key in bad_stats:
-
-            for value in add:
-                if value == False:
-                    team_score +=1
-                else: opponent_score += 1
-        else:
-            for value in add:
-                if value == True:
+            if key == "interceptions":
+                if add == False:
+                    team_score += 3
+                else: opponent_score += 3
+            if key == "fumbles":
+                if add == False:
                     team_score += 1
-                else: opponent_score +=1
-        print(key, team_score, opponent_score)
+                else: opponent_score += 1
+            if key == "sacks":
+                if add == False:
+                    team_score += 4
+                else: opponent_score += 4
+            if key == "yards_per_sack":
+                if add == False:
+                    team_score += 2
+                else: opponent_score += 2
+            if key == "sack_fumbles":
+                if add == False:
+                    team_score += 1
+                else: opponent_score += 1
+            if key == "sack_yards":
+                if add ==False:
+                    team_score += 2
+                else: opponent_score += 2
+        else:
+            if key == "completions":
+                if add == True:
+                    team_score += 2
+                else:
+                    opponent_score += 2
+            if key == "attempts":
+                if add == True:
+                    team_score += 1
+                else:
+                    opponent_score += 1
+            if key == "passing_yards":
+                if add == True:
+                    team_score += 5
+                else:
+                    opponent_score += 5
+            if key == "passing_tds":
+                if add == True:
+                    team_score += 3
+                else:
+                    opponent_score += 3
+            if key == "completion_percentage":
+                if add == True:
+                    team_score += 2
+                else:
+                    opponent_score += 2
+            if key == "passer_rating":
+                if add == True:
+                    team_score += 3
+                else:
+                    opponent_score += 3
+            if key == "carries":
+                if add == True:
+                    team_score += 1
+                else:
+                    opponent_score += 1
+            if key == "rushing_yards":
+                if add == True:
+                    team_score += 4
+                else:
+                    opponent_score += 4
+            if key == "rushing_tds":
+                if add == True:
+                    team_score += 2
+                else:
+                    opponent_score += 2
+            if key == "yards_per_carry":
+                if add == True:
+                    team_score += 2
+                else:
+                    opponent_score += 2
+            if key == "efficiency":
+                if add == True:
+                    team_score += 1
+                else:
+                    opponent_score += 1
+            if key == "targets":
+                if add == True:
+                    team_score += 1
+                else:
+                    opponent_score += 1
+            if key == "receiving_yards":
+                if add == True:
+                    team_score += 3
+                else:
+                    opponent_score += 3
+            if key == "receiving_tds":
+                if add == True:
+                    team_score += 2
+                else:
+                    opponent_score += 2
+            if key == "yards_per_reception":
+                if add == True:
+                    team_score += 2
+                else:
+                    opponent_score += 2
+            if key == "special_teams_tds":
+                if add == True:
+                    team_score += 1
+                else:
+                    opponent_score += 1
     return team_score, opponent_score
+
+
+def return_winner(team1, team1score, team2, team2score):
+    if team1score > team2score:
+        return team1
+    elif team2score > team1score:
+        return team2
+    else: return "TIE"
 
 
 if __name__ == "__main__":
     year = 2024
-    week = 3
-    myteam = "was"
+    week = 6
+    myteam = "was".upper()
     stats = ["passing", "rushing", "receiving", "sacks", "special"]
-
     team1stat = []
     team2stat = []
     for stat in stats:
@@ -324,4 +425,7 @@ if __name__ == "__main__":
         t1score, t2score = compare_weeks(t1, t2)
         team1score += t1score
         team2score += t2score
-    print(team1score, team2score)
+
+    print(myteam, team1score)
+    print(MainFile.return_opponent(year, myteam, week), team2score)
+    print("Predicted winner: ", return_winner(myteam, team1score, MainFile.return_opponent(year, myteam, week), team2score))
