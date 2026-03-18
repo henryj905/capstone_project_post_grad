@@ -1,10 +1,24 @@
 import nfl_data_py as nfl
 import pandas as pd
 
+
+weekly_cache = {}
+ngs_cache = {}
+
+def get_weekly_data(year):
+    if year not in weekly_cache:
+        weekly_cache[year] = nfl.import_weekly_data([year])
+    return weekly_cache[year]
+
+def get_ngs_data(stat_type, year):
+    key = (stat_type, year)
+    if key not in ngs_cache:
+        ngs_cache[key] = nfl.import_ngs_data(stat_type, [year])
+    return ngs_cache[key]
+
+
 def passing_weekly(year, week, name):
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
-    weekly = nfl.import_weekly_data([year])
+    weekly = get_weekly_data(year)
     weekly = weekly[["week", "player_id", "player_name", "recent_team", "position", "completions", "attempts", "passing_yards",
                      "passing_tds", "interceptions"]]
     efficiency = nfl.import_ngs_data("passing", [year])
@@ -23,9 +37,7 @@ def passing_weekly(year, week, name):
     return weekly.sort_values(["recent_team", "position"])
 
 def rushing_weekly(year, week, name):
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
-    weekly = nfl.import_weekly_data([year])
+    weekly = get_weekly_data(year)
     weekly = weekly[["week", "player_id", "player_name", "recent_team", "position", 'carries', 'rushing_yards', 'rushing_tds', 'rushing_fumbles']]
     efficiency = nfl.import_ngs_data("rushing", [year])
     efficiency = efficiency[["player_gsis_id", "efficiency", "week"]]
@@ -46,9 +58,7 @@ def rushing_weekly(year, week, name):
 
 
 def receiving_weekly(year, week, name):
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
-    weekly = nfl.import_weekly_data([year])
+    weekly = get_weekly_data(year)
     weekly = weekly[
         ["week", "player_id", "player_name", "recent_team", "position", 'targets', 'receptions', 'receiving_yards',
          'receiving_tds']]
@@ -61,9 +71,7 @@ def receiving_weekly(year, week, name):
     return weekly.sort_values(["recent_team", "position", "player_name"])
 
 def sacks_qb_weekly(year, week, name):
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
-    sacks = nfl.import_weekly_data([year])
+    sacks = get_weekly_data(year)
     sacks = sacks[["week", "player_id", "player_name", "recent_team", "position", "sacks", "sack_yards", "sack_fumbles"]]
 
     sacks = sacks[sacks["sacks"] > 0]
@@ -74,9 +82,7 @@ def sacks_qb_weekly(year, week, name):
 
 
 def special_tds_weekly(year, week, name):
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
-    special = nfl.import_weekly_data([year])
+    special = get_weekly_data(year)
     special = special[["week", "player_id", "player_name", "recent_team", "special_teams_tds"]]
 
     special = special[special["special_teams_tds"] > 0]

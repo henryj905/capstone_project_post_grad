@@ -6,7 +6,7 @@ import pandas as pd
 
 stats_using_averages = ["completion_percentage", "passer_rating", "efficiency", "yards_per_carry", "yards_per_reception", "yards_per_sack"]
 bad_stats = ["interceptions", "fumbles", "sacks", "sack_yards", "sack_fumbles", "yards_per_sack"]
-previous_combines = {}
+
 def passing_gather(team1, year, week):
     team1 = team1.upper()
 
@@ -34,7 +34,7 @@ def passing_gather(team1, year, week):
         if total_attempts > 0 else 0
      ).round(2)
 
-    passer_rating = team_df["passer_rating"].mean().round(2)
+    passer_rating = round(team_df["passer_rating"].mean(), 2)
 
     team_stats.append({
         "completions": total_completions,
@@ -184,10 +184,16 @@ def special_gather(team1, year, week):
 
 myteamstats = []
 opponentstats = []
+
+previous_week_cache = {}
+
 def gather_previous_weeks(team, year, week, stat):
     team = team.upper()
     stat = stat.upper()
-    opponent = MainFile.return_opponent(year, team, week)
+
+    cache_key = (team, year, week, stat)
+    if cache_key in previous_week_cache:
+        return previous_week_cache[cache_key]
 
     stat_functions = {
         "PASSING": passing_gather,
@@ -196,27 +202,27 @@ def gather_previous_weeks(team, year, week, stat):
         "SACKS": sacks_gather,
         "SPECIAL": special_gather
     }
+
     if stat not in stat_functions:
         return "INVALID STAT CALL"
 
     func = stat_functions[stat]
-    if week == 1:
-        return [], []
 
-    team_prev, opp_prev = gather_previous_weeks(team, year, week - 1, stat)
+    if week <= 1:
+        result = []
+    else:
+        prev_weeks = gather_previous_weeks(team, year, week - 1, stat)
+        result = list(prev_weeks)
 
-    team_last_week = func(team, year, week - 1)
-    if team_last_week is None:
-        team_last_week = []
+        opponent = MainFile.return_opponent(year, team, week - 1)
+        if opponent != "BYE":
+            last_week = func(team, year, week - 1)
+            if last_week is None:
+                last_week = {}
+            result.append(last_week)
 
-    opp_last_week = func(opponent, year, week - 1)
-    if opp_last_week is None:
-        opp_last_week = []
-
-    team_prev.append(team_last_week)
-    opp_prev.append(opp_last_week)
-
-    return team_prev, opp_prev
+    previous_week_cache[cache_key] = result
+    return result
 
 
 def combine_weeks(stats_list):
@@ -239,7 +245,7 @@ def combine_weeks(stats_list):
     for col in sum_cols:
         combined[col] = df[col].sum()
     for col in avg_cols:
-        combined[col] = df[col].mean().round(2)
+        combined[col] = round(df[col].mean(), 2)
 
     return combined
 
@@ -288,7 +294,7 @@ def TorFStatCompare(teamstats, opponent_stats, stat):
     if stat == "yards_per_sack":
         return teamstats["yards_per_sack"] > opponent_stats["yards_per_sack"]
     if stat == "special_teams_tds":
-        return teamstats["special_teams_tds"] > opponent_stats["special_teams_tds"]
+        return teamstats.get("special_teams_tds", 0) > opponent_stats.get("special_teams_tds", 0)
 
 
 def compare_weeks(team_stats, opponent_stats):
@@ -415,13 +421,14 @@ def return_winner(team1, team1score, team2, team2score):
 
 if __name__ == "__main__":
     year = 2024
-    week = 3
+    week = 14
     myteam = "was".upper()
     stats = ["passing", "rushing", "receiving", "sacks", "special"]
     team1stat = []
     team2stat = []
     for stat in stats:
-        team1, team2 = gather_previous_weeks(myteam, year, week, stat)
+        team1 = gather_previous_weeks(myteam, year, week, stat)
+        team2 = gather_previous_weeks(myteam, year, week, stat)
         team1 = combine_weeks(team1)
         team2 = combine_weeks(team2)
         team1stat.append(team1)
