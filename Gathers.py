@@ -1,6 +1,7 @@
 import pandas as pd
 import InLists
 import playerWeeklyStats
+import playerStatsSeasonal
 
 
 def passing_gather(team1, year, week):
@@ -175,3 +176,46 @@ def special_gather(team1, year, week):
             "special_tams_tds": total_tds
         })
     return team_stats
+
+
+def passing_gather_season(team1, year):
+    team1 = team1.upper()
+
+    team_stats = []
+    dfs = []
+
+    for _, row in InLists.player_in_passing(year - 1, 1, team1).iterrows():
+        df = playerStatsSeasonal.passing_stats_season(year -1, row["player_name"])
+        if not df.empty:
+            dfs.append(df)
+
+    if not dfs:
+        return None
+
+    team_df = pd.concat(dfs, ignore_index=True)
+
+    total_completions = team_df["completions"].sum()
+    total_attempts = team_df["attempts"].sum()
+    total_yards = team_df["passing_yards"].sum()
+    total_tds = team_df["passing_tds"].sum()
+    total_ints = team_df["interceptions"].sum()
+
+    completion_pct = (
+        total_completions / total_attempts
+        if total_attempts > 0 else 0
+     ).round(2)
+
+    passer_rating = round(team_df["passer_rating"].mean(), 2)
+
+    team_stats.append({
+        "completions": total_completions,
+        "attempts": total_attempts,
+        "passing_yards": total_yards,
+        "passing_tds": total_tds,
+        "interceptions": total_ints,
+        "completion_percentage": completion_pct,
+        "passer_rating": passer_rating
+    })
+    return team_stats
+
+print(passing_gather_season('pit', 2024))

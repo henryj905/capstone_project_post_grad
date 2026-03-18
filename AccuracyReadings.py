@@ -1,10 +1,7 @@
 import MainFile
 import nfl_data_py as nfl
 import pandas as pd
-import Algorithm
 import os
-import ast
-
 
 def real_results(year, team_abbr):
     data = nfl.import_schedules([year])
@@ -28,6 +25,25 @@ def real_results(year, team_abbr):
 
     schedule["result"] = winner
     return schedule[['result']]
+
+
+def load_all_predictions(teams_list):
+    all_predictions = {}
+
+    for team in teams_list:
+        file_name = f"csv_files/{team}.csv"
+
+        if not os.path.exists(file_name):
+            continue
+
+        df = pd.read_csv(file_name)
+        all_predictions[team] = df["predicted_winner"].tolist()
+
+    return all_predictions
+
+
+def df_to_dict(df, team):
+    return {team: df["result"].tolist()}
 
 
 if __name__ == "__main__":
@@ -93,8 +109,10 @@ if __name__ == "__main__":
     #
     #     print(f"{team} saved → {file_name}")
 
-
+    mine = load_all_predictions(MainFile.teams())
+    for team, predictions in mine.items():
+        print(f"{team}: {predictions}")
     for team in MainFile.teams():
-        file_name = f"{team}.csv"
-        for line in file_name:
-            print(line)
+        results = df_to_dict(real_results(2024, team), team)
+        for team, result in results.items():
+            print(f"{team}: {result}")

@@ -2,9 +2,7 @@ import nfl_data_py as nfl
 import pandas as pd
 
 
-def passing_stats_season(year, team):
-    team = team.upper()
-
+def passing_stats_season(year, player):
     pd.set_option('display.max_rows', None)
     seasonal_data = nfl.import_seasonal_data([year])
     weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team",
@@ -32,7 +30,8 @@ def passing_stats_season(year, team):
         on="player_id",
         how="left"
     )
-    data = data[data["recent_team"] == team]
+    data = data[data["player_name"] == player]
+    print(data[['player_name']])
 
     return data[["player_name", "recent_team", "position", "passing_yards", "completions", "attempts", "completion_pct",
                  "passing_tds", "interceptions", "passer_rating"]].sort_values("recent_team")

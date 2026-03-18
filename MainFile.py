@@ -118,7 +118,7 @@ def teams():
     abbr = nfl.import_team_desc()
     abbr = abbr[["team_abbr", "team_name"]]
 
-    teams_to_remove = ["LA", "SD", "OAK" , "STL"]
+    teams_to_remove = ["LAR", "SD", "OAK" , "STL"]
 
     data = abbr[~abbr["team_abbr"].isin(teams_to_remove)]
 
