@@ -32,7 +32,6 @@ def real_results(year, team_abbr):
 def fix_broken_csv(file_name):
     df = pd.read_csv(file_name)
 
-    # Flatten all values into a list
     values = df.iloc[0].tolist()
 
     rows = []
@@ -42,7 +41,6 @@ def fix_broken_csv(file_name):
 
     fixed_df = pd.DataFrame(rows)
 
-    # Add week column
     fixed_df.insert(0, "week", range(1, len(fixed_df) + 1))
 
     fixed_df.to_csv(file_name, index=False)
@@ -71,7 +69,6 @@ def df_to_dict(df, team):
 
 if __name__ == "__main__":
     year = 2024
-    weeks = list(range(1, 19))
     stats = ["passing", "rushing", "receiving", "sacks", "special"]
     df = ''
     for team in MainFile.teams():
@@ -83,7 +80,7 @@ if __name__ == "__main__":
             print(f"{file_name} already exists, skipping {team}")
             continue
         print(team)
-        for week in weeks:
+        for week in range(1, 19):
             team1stat = []
             team2stat = []
             if MainFile.return_opponent(year, team, week) == "BYE":
@@ -161,6 +158,3 @@ if __name__ == "__main__":
     print("right = ", right)
     print("wrong = ", wrong)
     print("percentage = ",round(right/total, 2))
-
-
-

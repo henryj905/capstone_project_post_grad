@@ -123,4 +123,3 @@ def teams():
     data = abbr[~abbr["team_abbr"].isin(teams_to_remove)]
 
     return data["team_abbr"].tolist()
-
