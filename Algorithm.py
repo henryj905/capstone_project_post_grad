@@ -17,7 +17,6 @@ previous_week_cache = {}
 def gather_previous_weeks(team, year, week, stat):
     team = team.upper()
     stat = stat.upper()
-
     cache_key = (team, year, week, stat)
     if cache_key in previous_week_cache:
         return previous_week_cache[cache_key]
@@ -36,6 +35,15 @@ def gather_previous_weeks(team, year, week, stat):
     func = stat_functions[stat]
 
     if week <= 1:
+        # stat_functions = {
+        #     "PASSING": Gathers.passing_gather_season,
+        #     "RUSHING": Gathers.rushing_gather_season,
+        #     "RECEIVING": Gathers.receiving_gather_season,
+        #     "SACKS": Gathers.sacks_gather_season,
+        #     "SPECIAL": Gathers.special_gather_season
+        #                   }
+        # func = stat_functions[stat]
+        # results = func(team, year)
         result = []
     else:
         prev_weeks = gather_previous_weeks(team, year, week - 1, stat)
@@ -52,7 +60,7 @@ def gather_previous_weeks(team, year, week, stat):
     return result
 
 
-def combine_weeks(stats_list):
+def combine(stats_list):
     flattened = []
     for week in stats_list:
         if isinstance(week, list):
@@ -131,113 +139,113 @@ def compare_weeks(team_stats, opponent_stats):
         add = torfstatcompare(team_stats, opponent_stats, key)
         if key in bad_stats:
             if key == "interceptions":
-                if add is False:
+                if add == False:
                     team_score += 3
                 else:
                     opponent_score += 3
             if key == "fumbles":
-                if add is False:
+                if add == False:
                     team_score += 1
                 else:
                     opponent_score += 1
             if key == "sacks":
-                if add is False:
+                if add == False:
                     team_score += 4
                 else:
                     opponent_score += 4
             if key == "yards_per_sack":
-                if add is False:
+                if add == False:
                     team_score += 2
                 else:
                     opponent_score += 2
             if key == "sack_fumbles":
-                if add is False:
+                if add == False:
                     team_score += 1
                 else:
                     opponent_score += 1
             if key == "sack_yards":
-                if add is False:
+                if add == False:
                     team_score += 2
                 else:
                     opponent_score += 2
         else:
             if key == "completions":
-                if add is True:
+                if add == True:
                     team_score += 2
                 else:
                     opponent_score += 2
             if key == "attempts":
-                if add is True:
+                if add == True:
                     team_score += 1
                 else:
                     opponent_score += 1
             if key == "passing_yards":
-                if add is True:
+                if add == True:
                     team_score += 4
                 else:
                     opponent_score += 4
             if key == "passing_tds":
-                if add is True:
+                if add == True:
                     team_score += 3
                 else:
                     opponent_score += 3
             if key == "completion_percentage":
-                if add is True:
+                if add == True:
                     team_score += 3
                 else:
                     opponent_score += 3
             if key == "passer_rating":
-                if add is True:
+                if add == True:
                     team_score += 3
                 else:
                     opponent_score += 3
             if key == "carries":
-                if add is True:
+                if add == True:
                     team_score += 1
                 else:
                     opponent_score += 1
             if key == "rushing_yards":
-                if add is True:
+                if add == True:
                     team_score += 4
                 else:
                     opponent_score += 4
             if key == "rushing_tds":
-                if add is True:
+                if add == True:
                     team_score += 2
                 else:
                     opponent_score += 2
             if key == "yards_per_carry":
-                if add is True:
+                if add == True:
                     team_score += 2
                 else:
                     opponent_score += 2
             if key == "efficiency":
-                if add is True:
+                if add == True:
                     team_score += 1
                 else:
                     opponent_score += 1
             if key == "targets":
-                if add is True:
+                if add == True:
                     team_score += 1
                 else:
                     opponent_score += 1
             if key == "receiving_yards":
-                if add is True:
+                if add == True:
                     team_score += 3
                 else:
                     opponent_score += 3
             if key == "receiving_tds":
-                if add is True:
+                if add == True:
                     team_score += 2
                 else:
                     opponent_score += 2
             if key == "yards_per_reception":
-                if add is True:
+                if add == True:
                     team_score += 2
                 else:
                     opponent_score += 2
             if key == "special_teams_tds":
-                if add is True:
+                if add == True:
                     team_score += 1
                 else:
                     opponent_score += 1
@@ -254,16 +262,16 @@ def return_winner(team1, team1score, team2, team2score):
 
 if __name__ == "__main__":
     myyear = 2024
-    myweek = 14
-    myteam = "was".upper()
+    myweek = 1
+    myteam = "WAS"
     stats = ["passing", "rushing", "receiving", "sacks", "special"]
     team1stat = []
     team2stat = []
     for mystat in stats:
         team1 = gather_previous_weeks(myteam, myyear, myweek, mystat)
         team2 = gather_previous_weeks(myteam, myyear, myweek, mystat)
-        team1 = combine_weeks(team1)
-        team2 = combine_weeks(team2)
+        team1 = combine(team1)
+        team2 = combine(team2)
         team1stat.append(team1)
         team2stat.append(team2)
 

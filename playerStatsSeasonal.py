@@ -1,9 +1,7 @@
 import nfl_data_py as nfl
-import pandas as pd
 
 
 def passing_stats_season(year, player):
-    pd.set_option('display.max_rows', None)
     seasonal_data = nfl.import_seasonal_data([year])
     weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team",
                                                      "position"]).drop_duplicates(subset="player_id")
@@ -31,15 +29,11 @@ def passing_stats_season(year, player):
         how="left"
     )
     data = data[data["player_name"] == player]
-    print(data[['player_name']])
 
     return data[["player_name", "recent_team", "position", "passing_yards", "completions", "attempts", "completion_pct",
                  "passing_tds", "interceptions", "passer_rating"]].sort_values("recent_team")
 
-def rushing_stats_season(year, team):
-    team = team.upper()
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
+def rushing_stats_season(year, name):
     seasonal_data = nfl.import_seasonal_data([year])
     weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team", "position"])
     weekly = weekly.drop_duplicates(subset="player_id")
@@ -65,17 +59,11 @@ def rushing_stats_season(year, team):
     rushing_yards = rushing_yards[["player_name", "recent_team", "position", "carries", "rushing_yards", "YPC",
                                    "rushing_tds", "rushing_fumbles", "rushing_fumbles_lost", "efficiency"]]
 
-    rushing_yards = rushing_yards[rushing_yards["recent_team"] == team]
+    rushing_yards = rushing_yards[rushing_yards["player_name"] == name]
+    return rushing_yards
 
-    return rushing_yards.sort_values("recent_team")
 
-
-def receiving_stats_season(year, team):
-    team = team.upper()
-
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
-
+def receiving_stats_season(year, name):
     seasonal_data = nfl.import_seasonal_data([year])
     weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team"])
     player_names = weekly.drop_duplicates(subset="player_id")
@@ -86,7 +74,8 @@ def receiving_stats_season(year, team):
     )
     yac = seasonal_with_names[seasonal_with_names["targets"] > 0]
     yac = yac[
-        ["player_id", "player_name", "recent_team", "receptions", "targets", "receiving_yards", "receiving_yards_after_catch", "receiving_tds"]]
+        ["player_id", "player_name", "recent_team", "receptions", "targets", "receiving_yards",
+         "receiving_yards_after_catch", "receiving_tds"]]
 
     yac["avg_completion_pct"] = (yac["receptions"] / yac["targets"]).round(2)
     yac["avg_yards_per_rec"] = (yac["receiving_yards"] / yac["receptions"]).round(2)
@@ -105,16 +94,12 @@ def receiving_stats_season(year, team):
 
     yac = yac.sort_values("targets")
     yac = yac
-    yac = yac[yac["recent_team"] == team]
+    yac = yac[yac["player_name"] == name]
 
     return yac.sort_values("recent_team")
 
 
-def sacks_by_qb_season(year, team):
-    team = team.upper()
-
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
+def sacks_by_qb_season(year, name):
     seasonal_data = nfl.import_seasonal_data([year])
     weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team"])
     player_names = weekly.drop_duplicates(subset="player_id")
@@ -124,18 +109,14 @@ def sacks_by_qb_season(year, team):
         how="left"
     )
     sacks = seasonal_with_names[seasonal_with_names["sacks"] > 0]
-    sacks = sacks[sacks["recent_team"] == team]
+    sacks = sacks[sacks["player_name"] == name]
 
     sacks = sacks[["player_id", "player_name", "recent_team", "sacks", "sack_yards", "sack_fumbles",
                    "sack_fumbles_lost"]].sort_values("recent_team")
     return sacks
 
 
-def special_teams_tds_season(year, team):
-    team = team.upper()
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
-
+def special_teams_tds_season(year, name):
     seasonal_data = nfl.import_seasonal_data([year])
     weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team"]).drop_duplicates()
 
@@ -144,8 +125,9 @@ def special_teams_tds_season(year, team):
         on="player_id",
         how="left"
     )
-    seasonal_data = seasonal_data[["player_id", "player_name", "recent_team", "special_teams_tds"]].sort_values("recent_team")
-    seasonal_data = seasonal_data[seasonal_data["recent_team"] == team]
+    seasonal_data = seasonal_data[["player_id", "player_name", "recent_team",
+                                   "special_teams_tds"]].sort_values("recent_team")
+    seasonal_data = seasonal_data[seasonal_data["player_name"] == name]
 
     seasonal_data = seasonal_data[seasonal_data["special_teams_tds"] > 0]
 

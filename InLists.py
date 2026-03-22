@@ -1,76 +1,173 @@
 import nfl_data_py as nfl
 
 
+weekly_cache = {}
+seasonal_cache = {}
+weekly_player_cache = {}
+
+
 def player_in_passing(year, week, team):
     team = team.upper()
 
-    player_names = nfl.import_weekly_data([year], columns=["week", "recent_team", "player_name", "attempts"])
-    player_names = player_names[player_names["week"] == week]
-    player_names = player_names[player_names["attempts"] > 0]
-    player_names = player_names[player_names["recent_team"] == team]
-    player_names = player_names.drop(columns=["week", "recent_team", "attempts"])
-    return player_names
+    if year not in weekly_cache:
+        weekly_cache[year] = nfl.import_weekly_data([year])
+
+    df = weekly_cache[year]
+
+    df = df[
+        (df["week"] == week) &
+        (df["recent_team"] == team) &
+        (df["attempts"] > 0)
+    ]
+
+    return df[["player_name"]]
 
 
 def player_in_rushing(year, week, team):
     team = team.upper()
 
-    player_names = nfl.import_weekly_data([year], columns=["week", "recent_team", "player_name", "carries"])
-    player_names = player_names[player_names["week"] == week]
-    player_names = player_names[player_names["carries"] > 0]
-    player_names = player_names[player_names["recent_team"] == team]
-    player_names = player_names.drop(columns=["week", "recent_team", "carries"])
-    return player_names
+    if year not in weekly_cache:
+        weekly_cache[year] = nfl.import_weekly_data([year])
+
+    df = weekly_cache[year]
+
+    df = df[
+        (df["week"] == week) &
+        (df["recent_team"] == team) &
+        (df["carries"] > 0)
+        ]
+
+    return df[["player_name"]]
 
 
 def player_in_receiving(year, week, team):
     team = team.upper()
 
-    player_names = nfl.import_weekly_data([year], columns=["week", "recent_team", "player_name", "targets"])
-    player_names = player_names[player_names["week"] == week]
-    player_names = player_names[player_names["targets"] > 0]
-    player_names = player_names[player_names["recent_team"] == team]
-    player_names = player_names.drop(columns=["week", "recent_team", "targets"])
-    return player_names
+    if year not in weekly_cache:
+        weekly_cache[year] = nfl.import_weekly_data([year])
+
+    df = weekly_cache[year]
+
+    df = df[
+        (df["week"] == week) &
+        (df["recent_team"] == team) &
+        (df["targets"] > 0)
+        ]
+
+    return df[["player_name"]]
 
 
 def player_in_sacks(year, week, team):
     team = team.upper()
 
-    player_names = nfl.import_weekly_data([year], columns=["week", "recent_team", "player_name", "sacks"])
-    player_names = player_names[player_names["week"] == week]
-    player_names = player_names[player_names["sacks"] > 0]
-    player_names = player_names[player_names["recent_team"] == team]
-    player_names = player_names.drop(columns=["week", "recent_team", "sacks"])
-    return player_names
+    if year not in weekly_cache:
+        weekly_cache[year] = nfl.import_weekly_data([year])
+
+    df = weekly_cache[year]
+
+    df = df[
+        (df["week"] == week) &
+        (df["recent_team"] == team) &
+        (df["sacks"] > 0)
+        ]
+
+    return df[["player_name"]]
 
 
 def player_in_special(year, week, team):
     team = team.upper()
 
-    player_names = nfl.import_weekly_data([year], columns=["week", "recent_team", "player_name", "special_teams_tds"])
-    player_names = player_names[player_names["week"] == week]
-    player_names = player_names[player_names["special_teams_tds"] > 0]
-    player_names = player_names[player_names["recent_team"] == team]
-    player_names = player_names.drop(columns=["week", "recent_team", "special_teams_tds"])
-    return player_names
+    if year not in weekly_cache:
+        weekly_cache[year] = nfl.import_weekly_data([year])
+
+    df = weekly_cache[year]
+
+    df = df[
+        (df["week"] == week) &
+        (df["recent_team"] == team) &
+        (df["special_teams_tds"] > 0)
+        ]
+
+    return df[["player_name"]]
+
+
+def get_weekly_players(year):
+    if year not in weekly_player_cache:
+        df = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team"])
+        weekly_player_cache[year] = df.drop_duplicates(subset="player_id")
+    return weekly_player_cache[year]
 
 
 def player_in_passing_season(year, team):
-    return None
+    team = team.upper()
+
+    if year not in seasonal_cache:
+        seasonal_cache[year] = nfl.import_seasonal_data([year])
+
+    seasonal = seasonal_cache[year][["player_id", "attempts"]]
+    weekly = get_weekly_players(year)
+
+    data = seasonal.merge(weekly, on="player_id", how="left")
+    data = data[(data["recent_team"] == team) & (data["attempts"] > 0)]
+
+    return data[["player_name"]]
 
 
 def player_in_rushing_season(year, team):
-    return None
+    team = team.upper()
+
+    if year not in seasonal_cache:
+        seasonal_cache[year] = nfl.import_seasonal_data([year])
+
+    seasonal = seasonal_cache[year][["player_id", "carries"]]
+    weekly = get_weekly_players(year)
+
+    data = seasonal.merge(weekly, on="player_id", how="left")
+    data = data[(data["recent_team"] == team) & (data["carries"] > 0)]
+
+    return data[["player_name"]]
 
 
 def player_in_receiving_season(year, team):
-    return None
+    team = team.upper()
+
+    if year not in seasonal_cache:
+        seasonal_cache[year] = nfl.import_seasonal_data([year])
+
+    seasonal = seasonal_cache[year][["player_id", "targets"]]
+    weekly = get_weekly_players(year)
+
+    data = seasonal.merge(weekly, on="player_id", how="left")
+    data = data[(data["recent_team"] == team) & (data["targets"] > 0)]
+
+    return data[["player_name"]]
 
 
 def player_in_sacks_season(year, team):
-    return None
+    team = team.upper()
+
+    if year not in seasonal_cache:
+        seasonal_cache[year] = nfl.import_seasonal_data([year])
+
+    seasonal = seasonal_cache[year][["player_id", "sacks"]]
+    weekly = get_weekly_players(year)
+
+    data = seasonal.merge(weekly, on="player_id", how="left")
+    data = data[(data["recent_team"] == team) & (data["sacks"] > 0)]
+
+    return data[["player_name"]]
 
 
 def player_in_special_season(year, team):
-    return None
+    team = team.upper()
+
+    if year not in seasonal_cache:
+        seasonal_cache[year] = nfl.import_seasonal_data([year])
+
+    seasonal = seasonal_cache[year][["player_id", "special_teams_tds"]]
+    weekly = get_weekly_players(year)
+
+    data = seasonal.merge(weekly, on="player_id", how="left")
+    data = data[(data["recent_team"] == team) & (data["special_teams_tds"] > 0)]
+
+    return data[["player_name"]]
