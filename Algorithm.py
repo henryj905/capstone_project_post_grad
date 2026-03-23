@@ -14,14 +14,15 @@ opponentstats = []
 previous_week_cache = {}
 
 
-def gather_previous_weeks(team, year, week, stat):
+def gather_previous_weeks(team, year, week, stat, use_previous_season=True):
     team = team.upper()
     stat = stat.upper()
     cache_key = (team, year, week, stat)
-    if cache_key in previous_week_cache:
+
+    if week > 1 and cache_key in previous_week_cache:
         return previous_week_cache[cache_key]
 
-    stat_functions = {
+    weekly_funcs = {
         "PASSING": Gathers.passing_gather,
         "RUSHING": Gathers.rushing_gather,
         "RECEIVING": Gathers.receiving_gather,
@@ -29,32 +30,31 @@ def gather_previous_weeks(team, year, week, stat):
         "SPECIAL": Gathers.special_gather
     }
 
-    if stat not in stat_functions:
+    season_funcs = {
+        "PASSING": Gathers.passing_gather_season,
+        "RUSHING": Gathers.rushing_gather_season,
+        "RECEIVING": Gathers.receiving_gather_season,
+        "SACKS": Gathers.sacks_gather_season,
+        "SPECIAL": Gathers.special_gather_season
+    }
+
+    if stat not in weekly_funcs:
         return "INVALID STAT CALL"
 
-    func = stat_functions[stat]
+    if week == 1:
+        if use_previous_season:
+            result = season_funcs[stat](team, year-1) or {}
+        else:
+            result = {}
+        return [result]
 
-    if week <= 1:
-        # stat_functions = {
-        #     "PASSING": Gathers.passing_gather_season,
-        #     "RUSHING": Gathers.rushing_gather_season,
-        #     "RECEIVING": Gathers.receiving_gather_season,
-        #     "SACKS": Gathers.sacks_gather_season,
-        #     "SPECIAL": Gathers.special_gather_season
-        #                   }
-        # func = stat_functions[stat]
-        # results = func(team, year)
-        result = []
-    else:
-        prev_weeks = gather_previous_weeks(team, year, week - 1, stat)
-        result = list(prev_weeks)
+    prev_weeks = gather_previous_weeks(team, year, week - 1, stat, use_previous_season=False)
+    result = list(prev_weeks)
 
-        opponent = MainFile.return_opponent(year, team, week - 1)
-        if opponent != "BYE":
-            last_week = func(team, year, week - 1)
-            if last_week is None:
-                last_week = {}
-            result.append(last_week)
+    opponent = MainFile.return_opponent(year, team, week - 1)
+    if opponent != "BYE":
+        last_week = weekly_funcs[stat](team, year, week - 1) or {}
+        result.append(last_week)
 
     previous_week_cache[cache_key] = result
     return result
@@ -257,32 +257,5 @@ def return_winner(team1, team1score, team2, team2score):
         return team1
     elif team2score > team1score:
         return team2
-    else: return "TIE"
-
-
-if __name__ == "__main__":
-    myyear = 2024
-    myweek = 1
-    myteam = "WAS"
-    stats = ["passing", "rushing", "receiving", "sacks", "special"]
-    team1stat = []
-    team2stat = []
-    for mystat in stats:
-        team1 = gather_previous_weeks(myteam, myyear, myweek, mystat)
-        team2 = gather_previous_weeks(myteam, myyear, myweek, mystat)
-        team1 = combine(team1)
-        team2 = combine(team2)
-        team1stat.append(team1)
-        team2stat.append(team2)
-
-    team1score = 0
-    team2score = 0
-    for t1, t2 in zip(team1stat, team2stat):
-        t1score, t2score = compare_weeks(t1, t2)
-        team1score += t1score
-        team2score += t2score
-
-    print(myteam, team1score)
-    print(MainFile.return_opponent(myyear, myteam, myweek), team2score)
-    print("Predicted winner: ", return_winner(myteam, team1score,
-                                              MainFile.return_opponent(myyear, myteam, myweek), team2score))
+    else:
+        return "TIE"

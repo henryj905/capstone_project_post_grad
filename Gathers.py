@@ -184,8 +184,8 @@ def passing_gather_season(team1, year):
     team_stats = []
     dfs = []
 
-    for _, row in InLists.player_in_passing_season(year - 1, team1).iterrows():
-        df = playerStatsSeasonal.passing_stats_season(year -1, row["player_name"])
+    for _, row in InLists.player_in_passing_season(year, team1).iterrows():
+        df = playerStatsSeasonal.passing_stats_season(year, row["player_name"])
         if not df.empty:
             dfs.append(df)
 
@@ -225,8 +225,8 @@ def rushing_gather_season(team1, year):
     team_stats = []
     dfs = []
 
-    for _, row in InLists.player_in_rushing_season(year-1, team1).iterrows():
-        df = playerStatsSeasonal.rushing_stats_season(year-1, row["player_name"])
+    for _, row in InLists.player_in_rushing_season(year, team1).iterrows():
+        df = playerStatsSeasonal.rushing_stats_season(year, row["player_name"])
         if not df.empty:
             dfs.append(df)
 
@@ -261,8 +261,8 @@ def receiving_gather_season(team1, year):
     team_stats = []
     dfs = []
 
-    for _, row in InLists.player_in_receiving_season(year - 1, team1).iterrows():
-        df = playerStatsSeasonal.receiving_stats_season(year - 1, row["player_name"])
+    for _, row in InLists.player_in_receiving_season(year, team1).iterrows():
+        df = playerStatsSeasonal.receiving_stats_season(year, row["player_name"])
         if not df.empty:
             dfs.append(df)
 
@@ -294,8 +294,8 @@ def sacks_gather_season(team1, year):
     team_stats = []
     dfs = []
 
-    for _, row in InLists.player_in_sacks_season(year - 1, team1).iterrows():
-        df = playerStatsSeasonal.sacks_by_qb_season(year - 1, row["player_name"])
+    for _, row in InLists.player_in_sacks_season(year, team1).iterrows():
+        df = playerStatsSeasonal.sacks_by_qb_season(year, row["player_name"])
         if not df.empty:
             dfs.append(df)
 
@@ -332,8 +332,8 @@ def special_gather_season(team1, year):
     team_stats = []
     dfs = []
 
-    for _, row in InLists.player_in_special_season(year - 1, team1).iterrows():
-        df = playerStatsSeasonal.special_teams_tds_season(year - 1, row["player_name"])
+    for _, row in InLists.player_in_special_season(year, team1).iterrows():
+        df = playerStatsSeasonal.special_teams_tds_season(year, row["player_name"])
         if not df.empty:
             dfs.append(df)
 

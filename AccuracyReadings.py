@@ -29,46 +29,39 @@ def real_results(year, team_abbr):
     return schedule[['result']]
 
 
-def fix_broken_csv(file_name):
+def fix_file(file_name):
     df = pd.read_csv(file_name)
 
-    values = df.iloc[0].tolist()
-
+    values = df.values.flatten()
     rows = []
+
     for v in values:
-        if isinstance(v, str) and v.strip():
-            rows.append(ast.literal_eval(v))
-
-    fixed_df = pd.DataFrame(rows)
-
-    fixed_df.insert(0, "week", range(1, len(fixed_df) + 1))
-
-    fixed_df.to_csv(file_name, index=False)
-
-    return fixed_df
-
-
-def load_all_predictions(teams_list):
-    all_predictions = {}
-
-    for team in teams_list:
-        file_name = f"csv_files/{team}.csv"
-
-        if not os.path.exists(file_name):
+        if not isinstance(v, str) or not v.strip():
             continue
 
-        df = pd.read_csv(file_name)
-        all_predictions[team] = df["predicted_winner"].tolist()
+        try:
+            parsed = ast.literal_eval(v)
+            if isinstance(parsed, dict):
+                rows.append(parsed)
+        except:
+            continue
 
-    return all_predictions
+    if not rows:
+        return
+
+    clean_df = pd.DataFrame(rows)
+
+    clean_df.to_csv(file_name, index=False)
+
+    print(f"Fixed and overwrote {file_name}")
 
 
-def df_to_dict(df, team):
-    return {team: df["result"].tolist()}
+def get_predicted_winners(file_name):
+    df = pd.read_csv(file_name)
+    return df["predicted_winner"].dropna().tolist()
 
-
-if __name__ == "__main__":
-    year = 2024
+def run():
+    year = int(input("input year: "))
     stats = ["passing", "rushing", "receiving", "sacks", "special"]
     df = ''
     for team in MainFile.teams():
@@ -116,7 +109,7 @@ if __name__ == "__main__":
                 "predicted_winner": winner
             })
 
-            df = pd.DataFrame([rows])
+            df = pd.DataFrame(rows)
 
         print(df)
 
@@ -128,33 +121,58 @@ if __name__ == "__main__":
         )
 
         print(f"{team} saved → {file_name}")
+    teams = MainFile.teams()
+    for team in teams:
+        fix_file(f"csv_files\\{team}.csv")
 
-    mine = load_all_predictions(MainFile.teams())
     guesses = []
     real_result_list = []
-    for team, predictions in mine.items():
+
+    for team in teams:
+        predictions = get_predicted_winners(f"csv_files\\{team}.csv")
+
+        wins = 0
+        loss = 0
+        tie = 0
+
         for guess in predictions:
+            if guess == team:
+                wins += 1
+            elif guess == "TIE":
+                tie += 1
+            else:
+                loss += 1
+
             guesses.append(guess)
+
+        print(team, ":", wins, "-", loss, "-", tie)
+
     print(guesses)
     print(len(guesses))
-    for team in MainFile.teams():
-        results = df_to_dict(real_results(2024, team), team)
-        for team, result in results.items():
-            for x in result:
+
+    for team in teams:
+        results = real_results(2024, team)
+
+        for _, result_list in results.items():
+            for x in result_list:
                 real_result_list.append(x)
+
     print(real_result_list)
     print(len(real_result_list))
 
     right = 0
     wrong = 0
-    total = 0
+
     for x, y in zip(guesses, real_result_list):
         if x == y:
             right += 1
-            total += 1
         else:
             wrong += 1
-            total += 1
-    print("right = ", right)
-    print("wrong = ", wrong)
-    print("percentage = ",round(right/total, 2))
+
+    total = right + wrong - 32
+
+    print("right =", right)
+    print("wrong =", wrong)
+    print("percentage =", round(right / total, 2))
+
+run()
