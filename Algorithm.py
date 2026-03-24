@@ -145,9 +145,9 @@ def compare_weeks(team_stats, opponent_stats):
                     opponent_score += 4
             if key == "fumbles":
                 if add == False:
-                    team_score += 2
+                    team_score += 3
                 else:
-                    opponent_score += 2
+                    opponent_score += 3
             if key == "sacks":
                 if add == False:
                     team_score += 4
@@ -160,9 +160,9 @@ def compare_weeks(team_stats, opponent_stats):
                     opponent_score += 2
             if key == "sack_fumbles":
                 if add == False:
-                    team_score += 2
+                    team_score += 3
                 else:
-                    opponent_score += 2
+                    opponent_score += 3
             if key == "sack_yards":
                 if add == False:
                     team_score += 2
@@ -181,9 +181,9 @@ def compare_weeks(team_stats, opponent_stats):
                     opponent_score += 1
             if key == "passing_yards":
                 if add == True:
-                    team_score += 4
+                    team_score += 3
                 else:
-                    opponent_score += 4
+                    opponent_score += 3
             if key == "passing_tds":
                 if add == True:
                     team_score += 3
@@ -206,9 +206,9 @@ def compare_weeks(team_stats, opponent_stats):
                     opponent_score += 1
             if key == "rushing_yards":
                 if add == True:
-                    team_score += 4
+                    team_score += 6
                 else:
-                    opponent_score += 4
+                    opponent_score += 6
             if key == "rushing_tds":
                 if add == True:
                     team_score += 3
@@ -221,9 +221,9 @@ def compare_weeks(team_stats, opponent_stats):
                     opponent_score += 2
             if key == "efficiency":
                 if add == True:
-                    team_score += 1
+                    team_score += 3
                 else:
-                    opponent_score += 1
+                    opponent_score += 3
             if key == "targets":
                 if add == True:
                     team_score += 1
@@ -231,9 +231,9 @@ def compare_weeks(team_stats, opponent_stats):
                     opponent_score += 1
             if key == "receiving_yards":
                 if add == True:
-                    team_score += 3
+                    team_score += 2
                 else:
-                    opponent_score += 3
+                    opponent_score += 2
             if key == "receiving_tds":
                 if add == True:
                     team_score += 2
@@ -246,9 +246,9 @@ def compare_weeks(team_stats, opponent_stats):
                     opponent_score += 3
             if key == "special_teams_tds":
                 if add == True:
-                    team_score += 1
+                    team_score += 2
                 else:
-                    opponent_score += 1
+                    opponent_score += 2
     return team_score, opponent_score
 
 
