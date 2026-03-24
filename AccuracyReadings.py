@@ -4,6 +4,7 @@ import pandas as pd
 import os
 import Algorithm
 import ast
+import numpy as np
 
 def real_results(year, team_abbr):
     data = nfl.import_schedules([year])
@@ -21,11 +22,16 @@ def real_results(year, team_abbr):
     schedule = games[["week", "home_team", "away_team", "result"]].copy()
     schedule["result"] = pd.to_numeric(schedule["result"])
     schedule = schedule[schedule['week'] < 19]
-    winner = schedule["result"].copy()
-    winner[schedule["result"] > 0] = schedule["home_team"]
-    winner[schedule["result"] < 0] = schedule["away_team"]
+    schedule["result"] = np.where(
+        schedule["result"] > 0,
+        schedule["home_team"],
+        np.where(
+            schedule["result"] < 0,
+            schedule["away_team"],
+            "TIE"
+        )
+    )
 
-    schedule["result"] = winner
     return schedule[['result']]
 
 
