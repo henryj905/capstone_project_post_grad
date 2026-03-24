@@ -169,7 +169,7 @@ def run():
         else:
             wrong += 1
 
-    total = right + wrong - 32
+    total = right + wrong
 
     print("right =", right)
     print("wrong =", wrong)
