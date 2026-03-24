@@ -1,11 +1,21 @@
 import nfl_data_py as nfl
+import playerWeeklyStats
+
+weekly_cache= {}
+seasonal_cache = {}
+
+def get_seasonal_data(year):
+    if year not in seasonal_cache:
+        seasonal_cache[year] = nfl.import_seasonal_data([year])
+    return seasonal_cache[year]
 
 
 def passing_stats_season(year, player):
-    seasonal_data = nfl.import_seasonal_data([year])
-    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team",
-                                                     "position"]).drop_duplicates(subset="player_id")
-
+    seasonal_data = get_seasonal_data(year)
+    weekly = playerWeeklyStats.get_weekly_data(year)
+    weekly = weekly[["player_id", "player_name", "recent_team",
+                                                     "position"]]
+    weekly = weekly.drop_duplicates(subset="player_id")
     data = seasonal_data.merge(
         weekly,
         on="player_id",
@@ -18,7 +28,7 @@ def passing_stats_season(year, player):
         data["completions"] / data["attempts"] * 100
     ).round(2)
 
-    efficiency = nfl.import_ngs_data("passing", [2024])
+    efficiency = playerWeeklyStats.get_ngs_data("passing", 2024)
     efficiency = efficiency[["player_gsis_id", "passer_rating"]]
     efficiency_avg = efficiency.groupby(["player_gsis_id"], as_index=False)["passer_rating"].mean()
     efficiency_avg = efficiency_avg.rename(columns={"player_gsis_id": "player_id"})
@@ -34,10 +44,12 @@ def passing_stats_season(year, player):
                  "passing_tds", "interceptions", "passer_rating"]].sort_values("recent_team")
 
 def rushing_stats_season(year, name):
-    seasonal_data = nfl.import_seasonal_data([year])
-    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team", "position"])
+    seasonal_data = get_seasonal_data(year)
+    weekly = playerWeeklyStats.get_weekly_data(year)
+    weekly = weekly[["player_id", "player_name", "recent_team", "position"]]
     weekly = weekly.drop_duplicates(subset="player_id")
-    efficiency = nfl.import_ngs_data("rushing", [2024])
+
+    efficiency = playerWeeklyStats.get_ngs_data("rushing", year)
     efficiency = efficiency[["player_gsis_id", "efficiency"]]
     efficiency_avg = efficiency.groupby(["player_gsis_id"], as_index=False)["efficiency"].mean()
     efficiency_sorted = efficiency_avg.sort_values("player_gsis_id")
@@ -64,8 +76,9 @@ def rushing_stats_season(year, name):
 
 
 def receiving_stats_season(year, name):
-    seasonal_data = nfl.import_seasonal_data([year])
-    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team"])
+    seasonal_data = get_seasonal_data(year)
+    weekly = playerWeeklyStats.get_weekly_data(year)
+    weekly = weekly[["player_id", "player_name", "recent_team"]]
     player_names = weekly.drop_duplicates(subset="player_id")
     seasonal_with_names = seasonal_data.merge(
         player_names,
@@ -80,7 +93,7 @@ def receiving_stats_season(year, name):
     yac["avg_completion_pct"] = (yac["receptions"] / yac["targets"]).round(2)
     yac["avg_yards_per_rec"] = (yac["receiving_yards"] / yac["receptions"]).round(2)
 
-    data = nfl.import_ngs_data("receiving", [2024])
+    data = playerWeeklyStats.get_ngs_data("receiving", 2024)
 
     separation = data[["player_gsis_id", "avg_separation"]]
     separation_avg = separation.groupby(["player_gsis_id"], as_index=False)["avg_separation"].mean()
@@ -100,8 +113,9 @@ def receiving_stats_season(year, name):
 
 
 def sacks_by_qb_season(year, name):
-    seasonal_data = nfl.import_seasonal_data([year])
-    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team"])
+    seasonal_data = get_seasonal_data(year)
+    weekly = playerWeeklyStats.get_weekly_data(year)
+    weekly = weekly[["player_id", "player_name", "recent_team"]]
     player_names = weekly.drop_duplicates(subset="player_id")
     seasonal_with_names = seasonal_data.merge(
         player_names,
@@ -117,8 +131,10 @@ def sacks_by_qb_season(year, name):
 
 
 def special_teams_tds_season(year, name):
-    seasonal_data = nfl.import_seasonal_data([year])
-    weekly = nfl.import_weekly_data([year], columns=["player_id", "player_name", "recent_team"]).drop_duplicates()
+    seasonal_data = get_seasonal_data(year)
+    weekly = playerWeeklyStats.get_weekly_data(year)
+    weekly = weekly[["player_id", "player_name", "recent_team"]]
+    weekly = weekly.drop_duplicates(subset="player_id")
 
     seasonal_data = seasonal_data.merge(
         weekly,

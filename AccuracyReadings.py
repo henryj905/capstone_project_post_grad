@@ -78,14 +78,13 @@ def run():
         if os.path.exists(file_name):
             print(f"{file_name} already exists, skipping {team}")
             continue
-        print(team)
+        print("Predicting for:",team)
         for week in range(1, 19):
             team1stat = []
             team2stat = []
             if MainFile.return_opponent(year, team, week) == "BYE":
                 continue
             for stat in stats:
-                print(stat)
                 team1 = Algorithm.gather_previous_weeks(team, year, week, stat)
                 team2 = Algorithm.gather_previous_weeks(MainFile.return_opponent(year, team, week), year, week, stat)
                 team1 = Algorithm.combine(team1)
@@ -100,7 +99,7 @@ def run():
                 team1score += t1score
                 team2score += t2score
 
-            print(week)
+            print("Week", week, "complete")
 
             team_score = team1score
             opponent = MainFile.return_opponent(year, team, week)
@@ -116,8 +115,6 @@ def run():
             })
 
             df = pd.DataFrame(rows)
-
-        print(df)
 
         df.to_csv(
             file_name,
