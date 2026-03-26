@@ -36,6 +36,7 @@ def passing_weekly(year, week, name):
     weekly = weekly[weekly["player_name"]==name]
     return weekly.sort_values(["recent_team", "position"])
 
+
 def rushing_weekly(year, week, name):
     weekly = get_weekly_data(year)
     weekly = weekly[["week", "player_id", "player_name", "recent_team", "position", 'carries', 'rushing_yards', 'rushing_tds', 'rushing_fumbles']]

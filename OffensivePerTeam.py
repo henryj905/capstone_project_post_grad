@@ -1,100 +1,98 @@
-import playerStatsSeasonal
-import pandas as pd
-
-def team_passing_season(team, year):
-    team = team.upper()
-
-    pd.set_option('display.max_columns', None)
-    data = playerStatsSeasonal.passing_stats_season(year, team)
-    data = data.rename(columns={"recent_team": "team"})
-    team_stats = data[data["team"] == team]
-    team_stats = team_stats.groupby("team", as_index=False).agg({
-        "passing_yards": "sum",
-        "completions": "sum",
-        "attempts": "sum",
-        "passing_tds": "sum",
-        "interceptions": "sum",
-        "passer_rating": "mean"
-    })
-    team_stats["passer_rating"] = team_stats["passer_rating"].round(2)
-    return team_stats
+import Gathers
+import Algorithm
 
 
-def team_rushing_season(team, year):
-    team = team.upper()
+def team_season(team, year):
+    stat_list = []
+    num_list = []
+    passing = Gathers.passing_gather_season(team, year)
+    rushing = Gathers.rushing_gather_season(team, year)
+    receiving = Gathers.receiving_gather_season(team, year)
+    sacks = Gathers.sacks_gather_season(team, year)
+    special = Gathers.special_gather_season(team, year)
 
-    pd.set_option('display.max_columns', None)
-    data = playerStatsSeasonal.rushing_stats_season(year, team)
-    data = data.rename(columns={"recent_team": "team"})
-    team_stats = data[data["team"] == team]
-    team_stats = team_stats.groupby("team", as_index=False).agg({
-        "carries": "sum",
-        "rushing_yards": "sum",
-        "YPC": "mean",
-        "rushing_tds": "sum",
-        "rushing_fumbles": "sum",
-        "rushing_fumbles_lost": "sum",
-        "efficiency": "mean"
-    })
-    team_stats = team_stats.rename(columns={"recent_team": "team_abbr"})
-    team_stats = team_stats[team_stats["team"] == team]
-    team_stats["YPC"] = team_stats["YPC"].round(2)
-    team_stats["efficiency"] = team_stats["efficiency"].round(2)
-    return team_stats
+    combine_1 = Algorithm.combine(passing)
+    combine_2 = Algorithm.combine(rushing)
+    combine_3 = Algorithm.combine(receiving)
+    combine_4 = Algorithm.combine(sacks)
+    combine_5 = Algorithm.combine(special)
 
-def team_receiving_season(team, year):
-    team = team.upper()
+    stats_1 = []
+    stats_2 = []
+    stats_3 = []
+    stats_4 = []
+    stats_5 = []
 
-    pd.set_option('display.max_columns', None)
-    data = playerStatsSeasonal.receiving_stats_season(year, team)
-    data = data.rename(columns={"recent_team": "team"})
-    team_stats = data[data["team"] == team]
-    team_stats = team_stats.groupby("team", as_index=False).agg({
-        "receptions": "sum",
-        "targets": "sum",
-        "receiving_yards": "sum",
-        "receiving_yards_after_catch": "sum",
-        "receiving_tds": "sum",
-        "avg_completion_pct": "mean",
-        "avg_yards_per_rec": "mean",
-        "avg_separation": "mean"
-    })
-    team_stats = team_stats.rename(columns={"recent_team": "team_abbr"})
-    team_stats = team_stats[team_stats["team"] == team]
-    team_stats["avg_completion_pct"] = team_stats["avg_completion_pct"].round(2)
-    team_stats["avg_yards_per_rec"] = team_stats["avg_yards_per_rec"].round(2)
-    team_stats["avg_separation"] = team_stats["avg_separation"].round(2)
-    return team_stats
+    for x in combine_1:
+        stats_1.append(x)
+    for stat in stats_1:
+        num_list.append(combine_1[f"{stat}"])
 
-def team_sacks_season(team, year):
-    team = team.upper()
-    pd.set_option('display.max_columns', None)
-    data = playerStatsSeasonal.sacks_by_qb_season(year, team)
-    data = data.rename(columns={"recent_team": "team"})
-    team_stats = data[data["team"] == team]
-    team_stats = team_stats.groupby("team", as_index=False).agg({
-        "sacks": "sum",
-        "sack_yards": "sum",
-        "sack_fumbles": "sum",
-        "sack_fumbles_lost": "sum"
-    })
-    team_stats["fumble_lost_ratio"] = (team_stats["sack_fumbles_lost"]/team_stats["sack_fumbles"]).round(2)
+    for x in combine_2:
+        stats_2.append(x)
+    for stat in stats_2:
+        num_list.append(combine_2[f"{stat}"])
+
+    for x in combine_3:
+        stats_3.append(x)
+    for stat in stats_3:
+        num_list.append(combine_3[f"{stat}"])
+
+    for x in combine_4:
+        stats_4.append(x)
+    for stat in stats_4:
+        num_list.append(combine_4[f"{stat}"])
+
+    for x in combine_5:
+        stats_5.append(x)
+    for stat in stats_5:
+        num_list.append(combine_5[f"{stat}"])
+
+    for stat in stats_1:
+        stat_list.append(stat)
+
+    for stat in stats_2:
+        stat_list.append(stat)
+
+    for stat in stats_3:
+        stat_list.append(stat)
+
+    for stat in stats_4:
+        stat_list.append(stat)
+
+    for stat in stats_5:
+        stat_list.append(stat)
+
+    return stat_list, num_list
+
+# stats, num  = (team_season('WAS', 2024))
+#
+# data = [f"{s:<25}: {n}" for s, n in zip(stats, num)]
+# for i in data:
+#     print(i)
+# a, b = team_passing_season('WAS', 2024)
+#
+# for i in range(0,len(passing)):
+#     print(a[i], b[i])
+#
+# a, b = team_rushing_season('WAS', 2024)
+#
+# for i in range(0,len(rushing)):
+#     print(a[i], b[i])
+#
+# a, b = team_receiving_season('WAS', 2024)
+#
+# for i in range(0,len(receiving)):
+#     print(a[i], b[i])
+#
+# a, b = team_sacks_season('WAS', 2024)
+#
+# for i in range(0,len(sacks)):
+#     print(a[i], b[i])
+#
+# a, b = team_special_tds_season('WAS', 2024)
+#
+# for i in range(0,len(special)):
+#     print(a[i], b[i])
 
 
-    return team_stats
-
-def team_special_tds_season(team, year):
-    team = team.upper()
-    pd.set_option('display.max_columns', None)
-
-    data = playerStatsSeasonal.special_teams_tds_season(year, team)
-    data = data.rename(columns={"recent_team": "team"})
-    team_stats = data[data["team"] == team]
-    team_stats = team_stats.groupby("team", as_index=False).agg({
-        "special_teams_tds": "sum"
-    })
-
-    if team_stats.empty:
-        return "No special teams touchdowns"
-
-    return team_stats
