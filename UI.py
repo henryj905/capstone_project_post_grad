@@ -87,7 +87,7 @@ class StatsScreen(Screen):
         stat_screen = self.manager.get_screen("stat_type")
         stat_screen.load_team(team_name)
 
-        self.manager.current = "stat_type"
+        self.manager.current = "year_selection"
 
     def go_back(self, instance):
         self.manager.current = "menu"
@@ -117,6 +117,7 @@ class StatTypeScreen(Screen):
         super().__init__(**kwargs)
 
         self.selected_team = None
+        self.selected_year = None
 
         layout = BoxLayout(orientation='vertical', padding=20, spacing=20)
 
@@ -139,11 +140,15 @@ class StatTypeScreen(Screen):
 
     def load_team(self, team_name):
         self.selected_team = team_name
-        self.title.text = f"{team_name}"
+        self.title.text = team_name
+
+    def load_year(self, year):
+        self.selected_year = year
+        self.title.text = f"{year}"
 
     def go_to_team_stats(self, instance):
         screen = self.manager.get_screen("team_stats")
-        screen.load_team(self.selected_team)
+        screen.load_team(self.selected_team, self.selected_year)
         self.manager.current = "team_stats"
 
     def go_to_player_stats(self, instance):
@@ -152,8 +157,53 @@ class StatTypeScreen(Screen):
         self.manager.current = "player_stats"
 
     def go_back(self, instance):
-        self.manager.current = "stats"
+        self.manager.current = "year_selection"
 
+
+class YearSelection(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.selected_year = None
+        main_layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
+
+        self.title = Label(text="Year", font_size=30)
+        main_layout.add_widget(self.title)
+
+        scroll = ScrollView()
+
+        grid = GridLayout(cols=2, spacing=10, size_hint_y=None)
+        grid.bind(minimum_height=grid.setter('height'))
+
+        years = list(range(2017, 2025))
+        for year in years:
+            year_btn = Button(text=f"{year}", size_hint_y=None, height = 60)
+            year_btn.bind(on_press=self.go_to_stat_screen)
+            grid.add_widget(year_btn)
+
+        scroll.add_widget(grid)
+        main_layout.add_widget(scroll)
+
+        back_btn = Button(text="Back", size_hint=(1, 0.2))
+        back_btn.bind(on_press=self.go_back)
+        main_layout.add_widget(back_btn)
+
+        self.add_widget(main_layout)
+
+    def load_year(self, instance):
+        year = instance.text
+
+        stat_screen = self.manager.get_screen("stat_type")
+        stat_screen.load_team(year)
+
+        self.manager.current = "stat_type"
+    def go_to_stat_screen(self, instance):
+        screen = self.manager.get_screen("stat_type")
+        screen.load_year(self.selected_year)
+        self.manager.current = "stat_type"
+
+    def go_back(self, instance):
+        self.manager.current = "stats"
 
 # ------------------ TEAM STATS SCREEN ------------------
 class TeamStatsScreen(Screen):
@@ -203,8 +253,9 @@ class TeamStatsScreen(Screen):
         return lbl
 
     # Load a single team
-    def load_team(self, team_name):
+    def load_team(self, team_name, year):
         self.team_name = team_name
+        self.year = year
         self.compare_team = None
         self.label.text = f"{team_name} Stats"
         self.display_single_team()
@@ -212,7 +263,7 @@ class TeamStatsScreen(Screen):
     # Display stats for one team
     def display_single_team(self):
         try:
-            stat, num = OffensivePerTeam.team_season(self.team_name, 2024)
+            stat, num = OffensivePerTeam.team_season(self.team_name, self.year)
             self.stats_grid.clear_widgets()
             self.stats_grid.cols = 2
 
@@ -227,8 +278,8 @@ class TeamStatsScreen(Screen):
     # Display stats for two teams side-by-side
     def display_comparison(self):
         try:
-            stat1, num1 = OffensivePerTeam.team_season(self.team_name, 2024)
-            stat2, num2 = OffensivePerTeam.team_season(self.compare_team, 2024)
+            stat1, num1 = OffensivePerTeam.team_season(self.team_name, self.year)
+            stat2, num2 = OffensivePerTeam.team_season(self.compare_team, self.year)
 
             self.stats_grid.clear_widgets()
             self.stats_grid.cols = 4
@@ -331,6 +382,7 @@ class MyApp(App):
         sm.add_widget(TeamStatsScreen(name="team_stats"))
         sm.add_widget(PlayerStatsScreen(name="player_stats"))
         sm.add_widget(CompareScreen(name="compare"))
+        sm.add_widget(YearSelection(name="year_selection"))
         return sm
 
 
