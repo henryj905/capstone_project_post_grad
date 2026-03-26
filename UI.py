@@ -6,6 +6,7 @@ from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
 import MainFile
+import OffensivePerTeam
 
 # ------------------ MAIN MENU ------------------
 class MainMenu(Screen):
@@ -155,34 +156,140 @@ class StatTypeScreen(Screen):
 
 
 # ------------------ TEAM STATS SCREEN ------------------
-
 class TeamStatsScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self.team_name = None
+        self.compare_team = None
+
         self.layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
 
-        self.label = Label(text="Team Stats", font_size=30)
+        # Title
+        self.label = Label(text="Team Stats", font_size=30, size_hint=(1, 0.1))
         self.layout.add_widget(self.label)
 
-        self.stats_label = Label(text="", font_size=18)
-        self.layout.add_widget(self.stats_label)
+        # Scrollable grid for stats
+        scroll = ScrollView()
+        self.stats_grid = GridLayout(
+            cols=2,
+            spacing=5,
+            size_hint_y=None
+        )
+        self.stats_grid.bind(minimum_height=self.stats_grid.setter('height'))
+        scroll.add_widget(self.stats_grid)
+        self.layout.add_widget(scroll)
 
+        # Button row (Back + Compare)
+        btn_row = BoxLayout(size_hint=(1, 0.1), spacing=10)
         back_btn = Button(text="Back")
         back_btn.bind(on_press=self.go_back)
-        self.layout.add_widget(back_btn)
+        compare_btn = Button(text="Compare")
+        compare_btn.bind(on_press=self.go_to_compare)
+        btn_row.add_widget(back_btn)
+        btn_row.add_widget(compare_btn)
+        self.layout.add_widget(btn_row)
 
         self.add_widget(self.layout)
 
+    # Helper to create aligned labels
+    def create_label(self, text, align):
+        lbl = Label(
+            text=str(text),
+            halign=align,
+            size_hint=(None, None)
+        )
+        lbl.bind(texture_size=lbl.setter('size'))
+        return lbl
+
+    # Load a single team
     def load_team(self, team_name):
+        self.team_name = team_name
+        self.compare_team = None
         self.label.text = f"{team_name} Stats"
+        self.display_single_team()
 
-        # Replace this with your actual data logic
-        self.stats_label.text = f"Showing stats for {team_name}"
+    # Display stats for one team
+    def display_single_team(self):
+        try:
+            stat, num = OffensivePerTeam.team_season(self.team_name, 2024)
+            self.stats_grid.clear_widgets()
+            self.stats_grid.cols = 2
 
+            for s, n in zip(stat, num):
+                self.stats_grid.add_widget(self.create_label(s, "left"))
+                self.stats_grid.add_widget(self.create_label(n, "right"))
+
+        except Exception as e:
+            self.stats_grid.clear_widgets()
+            self.stats_grid.add_widget(Label(text=f"Error: {e}"))
+
+    # Display stats for two teams side-by-side
+    def display_comparison(self):
+        try:
+            stat1, num1 = OffensivePerTeam.team_season(self.team_name, 2024)
+            stat2, num2 = OffensivePerTeam.team_season(self.compare_team, 2024)
+
+            self.stats_grid.clear_widgets()
+            self.stats_grid.cols = 4
+
+            # Optional headers
+            self.stats_grid.add_widget(self.create_label(self.team_name, "center"))
+            self.stats_grid.add_widget(Label(text=""))  # spacer
+            self.stats_grid.add_widget(self.create_label(self.compare_team, "center"))
+            self.stats_grid.add_widget(Label(text=""))  # spacer
+
+            for i in range(len(stat1)):
+                self.stats_grid.add_widget(self.create_label(stat1[i], "left"))
+                self.stats_grid.add_widget(self.create_label(num1[i], "right"))
+                self.stats_grid.add_widget(self.create_label(stat2[i], "left"))
+                self.stats_grid.add_widget(self.create_label(num2[i], "right"))
+
+        except Exception as e:
+            self.stats_grid.clear_widgets()
+            self.stats_grid.add_widget(Label(text=f"Error: {e}"))
+
+    # Go to compare screen to pick another team
+    def go_to_compare(self, instance):
+        compare_screen = self.manager.get_screen("compare")
+        compare_screen.set_main_team(self.team_name)
+        self.manager.current = "compare"
+
+    # Go back to stats menu
     def go_back(self, instance):
         self.manager.current = "stats"
 
+class CompareScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.main_team = None
 
+        layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
+        layout.add_widget(Label(text="Select Team to Compare", font_size=30))
+
+        scroll = ScrollView()
+        grid = GridLayout(cols=4, size_hint_y=None)
+        grid.bind(minimum_height=grid.setter('height'))
+
+        teams = MainFile.teams()
+        for team in teams:
+            btn = Button(text=team, size_hint_y=None, height=60)
+            btn.bind(on_press=self.select_team)
+            grid.add_widget(btn)
+
+        scroll.add_widget(grid)
+        layout.add_widget(scroll)
+        self.add_widget(layout)
+
+    def set_main_team(self, team):
+        self.main_team = team
+
+    def select_team(self, instance):
+        compare_team = instance.text
+        stats_screen = self.manager.get_screen("team_stats")
+        stats_screen.compare_team = compare_team
+        stats_screen.display_comparison()
+        self.manager.current = "team_stats"
 
 
 class PlayerStatsScreen(Screen):
@@ -223,6 +330,7 @@ class MyApp(App):
         sm.add_widget(StatTypeScreen(name="stat_type"))
         sm.add_widget(TeamStatsScreen(name="team_stats"))
         sm.add_widget(PlayerStatsScreen(name="player_stats"))
+        sm.add_widget(CompareScreen(name="compare"))
         return sm
 
 
