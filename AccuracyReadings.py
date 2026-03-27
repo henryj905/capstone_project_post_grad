@@ -67,98 +67,101 @@ def get_predicted_winners(file_name):
     return df["predicted_winner"].dropna().tolist()
 
 def run():
-    year = int(input("input year: "))
+    years = list(range(2021, 2025))
     stats = ["passing", "rushing", "receiving", "sacks", "special"]
     df = ''
-    for team in MainFile.teams():
-        rows = []
+    for year in years:
+        for team in MainFile.teams():
+            rows = []
 
-        file_name = f"csv_files\\{team}.csv"
+            file_name = f"csv_files\\{team}{year}.csv"
 
-        if os.path.exists(file_name):
-            print(f"{file_name} already exists, skipping {team}")
-            continue
-        print("Predicting for:",team)
-        for week in range(1, 19):
-            team1stat = []
-            team2stat = []
-            if MainFile.return_opponent(year, team, week) == "BYE":
+            if os.path.exists(file_name):
+                print(f"{file_name} already exists, skipping {team}")
                 continue
-            for stat in stats:
-                team1 = Algorithm.gather_previous_weeks(team, year, week, stat)
-                team2 = Algorithm.gather_previous_weeks(MainFile.return_opponent(year, team, week), year, week, stat)
-                team1 = Algorithm.combine(team1)
-                team2 = Algorithm.combine(team2)
-                team1stat.append(team1)
-                team2stat.append(team2)
+            print("Predicting for:",team, year)
+            for week in range(1, 19):
+                team1stat = []
+                team2stat = []
+                if MainFile.return_opponent(year, team, week) == "BYE":
+                    continue
+                for stat in stats:
+                    team1 = Algorithm.gather_previous_weeks(team, year, week, stat)
+                    team2 = Algorithm.gather_previous_weeks(MainFile.return_opponent(year, team, week), year, week, stat)
+                    team1 = Algorithm.combine(team1)
+                    team2 = Algorithm.combine(team2)
+                    team1stat.append(team1)
+                    team2stat.append(team2)
 
-            team1score = 0
-            team2score = 0
-            for t1, t2 in zip(team1stat, team2stat):
-                t1score, t2score = Algorithm.compare_weeks(t1, t2)
-                team1score += t1score
-                team2score += t2score
+                team1score = 0
+                team2score = 0
+                for t1, t2 in zip(team1stat, team2stat):
+                    t1score, t2score = Algorithm.compare_weeks(t1, t2)
+                    team1score += t1score
+                    team2score += t2score
 
-            print("Week", week, "complete")
+                print("Week", week, "complete")
 
-            team_score = team1score
-            opponent = MainFile.return_opponent(year, team, week)
-            opponent_score = team2score
-            winner = Algorithm.return_winner(team, team_score, opponent, opponent_score)
+                team_score = team1score
+                opponent = MainFile.return_opponent(year, team, week)
+                opponent_score = team2score
+                winner = Algorithm.return_winner(team, team_score, opponent, opponent_score)
 
-            rows.append({
-                "team": team,
-                "team_score": team_score,
-                "opponent": opponent,
-                "opponent_score": opponent_score,
-                "predicted_winner": winner
-            })
+                rows.append({
+                    "team": team,
+                    "team_score": team_score,
+                    "opponent": opponent,
+                    "opponent_score": opponent_score,
+                    "predicted_winner": winner
+                })
 
-            df = pd.DataFrame(rows)
+                df = pd.DataFrame(rows)
 
-        df.to_csv(
-            file_name,
-            mode='a',
-            header=not os.path.exists(f"csv_files\\{file_name}"),
-            index=False
-        )
+            df.to_csv(
+                file_name,
+                mode='a',
+                header=not os.path.exists(f"csv_files\\{file_name}"),
+                index=False
+            )
 
-        print(f"{team} saved → {file_name}")
+            print(f"{team} saved → {file_name}")
     teams = MainFile.teams()
-    for team in teams:
-        fix_file(f"csv_files\\{team}.csv")
+    for year in years:
+        for team in teams:
+            fix_file(f"csv_files\\{team}{year}.csv")
 
     guesses = []
     real_result_list = []
+    for year in years:
+        for team in teams:
+            predictions = get_predicted_winners(f"csv_files\\{team}{year}.csv")
 
-    for team in teams:
-        predictions = get_predicted_winners(f"csv_files\\{team}.csv")
+            wins = 0
+            loss = 0
+            tie = 0
 
-        wins = 0
-        loss = 0
-        tie = 0
+            for guess in predictions:
+                if guess == team:
+                    wins += 1
+                elif guess == "TIE":
+                    tie += 1
+                else:
+                    loss += 1
 
-        for guess in predictions:
-            if guess == team:
-                wins += 1
-            elif guess == "TIE":
-                tie += 1
-            else:
-                loss += 1
+                guesses.append(guess)
 
-            guesses.append(guess)
-
-        print(team, ":", wins, "-", loss, "-", tie)
+            print(team, ":", wins, "-", loss, "-", tie)
 
     print(guesses)
     print(len(guesses))
 
-    for team in teams:
-        results = real_results(2024, team)
+    for year in years:
+        for team in teams:
+            results = real_results(year, team)
 
-        for _, result_list in results.items():
-            for x in result_list:
-                real_result_list.append(x)
+            for _, result_list in results.items():
+                for x in result_list:
+                    real_result_list.append(x)
 
     print(real_result_list)
     print(len(real_result_list))
