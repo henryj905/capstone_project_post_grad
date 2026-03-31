@@ -66,8 +66,9 @@ def team_season(team, year):
     return stat_list, num_list
 
 # stats, num  = (team_season('WAS', 2024))
-#
+
 # data = [f"{s:<25}: {n}" for s, n in zip(stats, num)]
+# print(num)
 # for i in data:
 #     print(i)
 # a, b = team_passing_season('WAS', 2024)

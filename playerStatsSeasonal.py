@@ -10,7 +10,7 @@ def get_seasonal_data(year):
     return seasonal_cache[year]
 
 
-def passing_stats_season(year, player):
+def passing_stats_season(year, name):
     seasonal_data = get_seasonal_data(year)
     weekly = playerWeeklyStats.get_weekly_data(year)
     weekly = weekly[["player_id", "player_name", "recent_team",
@@ -38,7 +38,7 @@ def passing_stats_season(year, player):
         on="player_id",
         how="left"
     )
-    data = data[data["player_name"] == player]
+    data = data[data["player_name"] == name]
 
     return data[["player_name", "recent_team", "position", "passing_yards", "completions", "attempts", "completion_pct",
                  "passing_tds", "interceptions", "passer_rating"]].sort_values("recent_team")
@@ -148,3 +148,21 @@ def special_teams_tds_season(year, name):
     seasonal_data = seasonal_data[seasonal_data["special_teams_tds"] > 0]
 
     return seasonal_data
+
+
+# def get_all_season(year, name):
+#     passing = passing_stats_season(year, name)
+#     rushing = rushing_stats_season(year, name)
+#     receiving = receiving_stats_season(year, name)
+#     sacks = sacks_by_qb_season(year, name)
+#     special = special_teams_tds_season(year, name)
+#
+#     all_stats = passing.merge(rushing, on=['player_name', 'recent_team'], how='left')\
+#                         .merge(receiving,on=['player_name', 'recent_team'], how='left')\
+#                         .merge(sacks, on=['player_name', 'recent_team'], how='left')\
+#                         .merge(special, on=['player_name', 'recent_team'], how='left')
+#
+#     print(all_stats)
+#
+#
+# print(get_all_season(2024, 'J.Daniels'))
