@@ -8,6 +8,7 @@ from kivy.uix.gridlayout import GridLayout
 import MainFile
 import OffensivePerTeam
 
+
 class MainMenu(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -42,10 +43,10 @@ class MainMenu(Screen):
 
         self.add_widget(layout)
 
-    def go_to_years(self, instance):
+    def go_to_years(self):
         self.manager.current = "years"
 
-    def go_to_predictor(self, instance):
+    def go_to_predictor(self):
         self.manager.current = "predictor"
 
 
@@ -62,7 +63,7 @@ class YearScreen(Screen):
         grid = GridLayout(cols=4, spacing=10, size_hint_y=None)
         grid.bind(minimum_height=grid.setter('height'))
 
-        years = list(range(2017,2025))
+        years = list(range(2017, 2025))
 
         for year in years:
             btn = Button(text=f"{year}", size_hint_y=None, height=60)
@@ -77,6 +78,7 @@ class YearScreen(Screen):
         main_layout.add_widget(back_btn)
 
         self.add_widget(main_layout)
+
     def load_year(self, instance):
         year = int(instance.text)
 
@@ -85,7 +87,7 @@ class YearScreen(Screen):
 
         self.manager.current = "statistics"
 
-    def go_back(self, instance):
+    def go_back(self):
         self.manager.current = "main"
 
 
@@ -129,7 +131,7 @@ class StatsScreen(Screen):
     def load_year(self, year):
         self.selected_year = year
 
-    def go_back(self, instance):
+    def go_back(self):
         self.manager.current = "years"
 
 
@@ -147,7 +149,7 @@ class PredictorScreen(Screen):
 
         self.add_widget(layout)
 
-    def go_back(self, instance):
+    def go_back(self):
         self.manager.current = "main"
 
 
@@ -182,21 +184,21 @@ class StatTypeScreen(Screen):
         self.selected_year = year
         self.title.text = f"{team_name} ({year})"
 
-    def go_to_team_stats(self, instance):
+    def go_to_team_stats(self):
         screen = self.manager.get_screen("team_stats")
 
         screen.year = self.selected_year
         screen.load_team(self.selected_team)
         self.manager.current = "team_stats"
 
-    def go_to_player_stats(self, instance):
+    def go_to_player_stats(self):
         screen = self.manager.get_screen("player_stats")
 
         screen.year = self.selected_year
         screen.load_team(self.selected_team)
         self.manager.current = "player_stats"
 
-    def go_back(self, instance):
+    def go_back(self):
         self.manager.current = "statistics"
 
 
@@ -210,11 +212,9 @@ class TeamStatsScreen(Screen):
 
         self.layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
 
-        # Title
         self.label = Label(text="Team Stats", font_size=30, size_hint=(1, 0.1))
         self.layout.add_widget(self.label)
 
-        # Scrollable grid for stats
         scroll = ScrollView()
         self.stats_grid = GridLayout(
             cols=2,
@@ -225,7 +225,6 @@ class TeamStatsScreen(Screen):
         scroll.add_widget(self.stats_grid)
         self.layout.add_widget(scroll)
 
-        # Button row (Back + Compare)
         btn_row = BoxLayout(size_hint=(1, 0.1), spacing=10)
         back_btn = Button(text="Back")
         back_btn.bind(on_press=self.go_back)
@@ -237,7 +236,6 @@ class TeamStatsScreen(Screen):
 
         self.add_widget(self.layout)
 
-    # Helper to create aligned labels
     def create_label(self, text, align):
         lbl = Label(
             text=str(text),
@@ -247,17 +245,15 @@ class TeamStatsScreen(Screen):
         lbl.bind(texture_size=lbl.setter('size'))
         return lbl
 
-    # Load a single team
     def load_team(self, team_name):
         self.team_name = team_name
         self.compare_team = None
         self.label.text = f"{team_name} Stats"
         self.display_single_team()
 
-    # Display stats for one team
     def display_single_team(self):
         try:
-            stat, num = OffensivePerTeam.team_season(self.team_name, self.year)   #*******************************
+            stat, num = OffensivePerTeam.team_season(self.team_name, self.year)
             self.stats_grid.clear_widgets()
             self.stats_grid.cols = 2
 
@@ -269,7 +265,6 @@ class TeamStatsScreen(Screen):
             self.stats_grid.clear_widgets()
             self.stats_grid.add_widget(Label(text=f"Error: {e}"))
 
-    # Display stats for two teams side-by-side
     def display_comparison(self):
         try:
             stat1, num1 = OffensivePerTeam.team_season(self.team_name, self.year)
@@ -278,7 +273,6 @@ class TeamStatsScreen(Screen):
             self.stats_grid.clear_widgets()
             self.stats_grid.cols = 4
 
-            # Optional headers
             self.stats_grid.add_widget(self.create_label(self.team_name, "center"))
             self.stats_grid.add_widget(Label(text=""))  # spacer
             self.stats_grid.add_widget(self.create_label(self.compare_team, "center"))
@@ -294,15 +288,13 @@ class TeamStatsScreen(Screen):
             self.stats_grid.clear_widgets()
             self.stats_grid.add_widget(Label(text=f"Error: {e}"))
 
-    # Go to compare screen to pick another team
-    def go_to_compare(self, instance):
+    def go_to_compare(self):
         compare_screen = self.manager.get_screen("compare_teams")
         compare_screen.set_main_team(self.team_name)
         compare_screen.year = self.year
         self.manager.current = "compare_teams"
 
-    # Go back to stats menu
-    def go_back(self, instance):
+    def go_back(self):
         self.manager.current = "statistics"
 
 
@@ -336,8 +328,11 @@ class CompareScreen(Screen):
         compare_team = instance.text
         stats_screen = self.manager.get_screen("team_stats")
 
+        stats_screen.team_name = self.main_team
         stats_screen.compare_team = compare_team
         stats_screen.year = self.year
+
+        stats_screen.display_comparison()
 
         self.manager.current = "team_stats"
 
@@ -366,8 +361,11 @@ class PlayerStatsScreen(Screen):
         # Replace with real logic later
         self.content.text = f"Showing player stats for {team_name}"
 
-    def go_back(self, instance):
+    def go_back(self):
         self.manager.current = "stats"
+
+# class PlayerCompareScreen(Screen):
+# class PlayerDisplayScreen(Screen):
 
 
 class MyApp(App):
