@@ -122,7 +122,7 @@ def receiving_stats_season(year, team, name):
 def sacks_by_qb_season(year, team, name):
     seasonal_data = get_seasonal_data(year)
     weekly = playerWeeklyStats.get_weekly_data(year)
-    weekly = weekly[["player_id", "player_name", "recent_team"]]
+    weekly = weekly[["player_id", "player_name", "recent_team", 'position']]
     player_names = weekly.drop_duplicates(subset="player_id")
     seasonal_with_names = seasonal_data.merge(
         player_names,
@@ -133,7 +133,7 @@ def sacks_by_qb_season(year, team, name):
     sacks = sacks[sacks["player_name"] == name]
     sacks = sacks[sacks["recent_team"] == team]
 
-    sacks = sacks[["player_id", "player_name", "recent_team", "sacks", "sack_yards", "sack_fumbles",
+    sacks = sacks[["player_name", 'position', "recent_team", "sacks", "sack_yards", "sack_fumbles",
                    "sack_fumbles_lost"]].sort_values("recent_team")
     return sacks
 
@@ -141,7 +141,7 @@ def sacks_by_qb_season(year, team, name):
 def special_teams_tds_season(year, team, name):
     seasonal_data = get_seasonal_data(year)
     weekly = playerWeeklyStats.get_weekly_data(year)
-    weekly = weekly[["player_id", "player_name", "recent_team"]]
+    weekly = weekly[["player_id", "player_name", "recent_team", 'position']]
     weekly = weekly.drop_duplicates(subset="player_id")
 
     seasonal_data = seasonal_data.merge(
@@ -149,7 +149,7 @@ def special_teams_tds_season(year, team, name):
         on="player_id",
         how="left"
     )
-    seasonal_data = seasonal_data[["player_id", "player_name", "recent_team",
+    seasonal_data = seasonal_data[["player_name", 'position', "recent_team",
                                    "special_teams_tds"]].sort_values("recent_team")
     seasonal_data = seasonal_data[seasonal_data["player_name"] == name]
     seasonal_data = seasonal_data[seasonal_data['recent_team'] == team]
