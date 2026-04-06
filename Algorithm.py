@@ -135,120 +135,51 @@ def torfstatcompare(teamstats, opponent_stats, stat):
 def compare_weeks(team_stats, opponent_stats):
     team_score = 0
     opponent_score = 0
+
+    bad_stat_points = {
+        "interceptions": 4,
+        "fumbles": 3,
+        "sacks": 4,
+        "yards_per_sack": 2,
+        "sack_fumbles": 3,
+        "sack_yards": 2
+    }
+
+    good_stat_points = {
+        "completions": 2,
+        "attempts": 1,
+        "passing_yards": 3,
+        "passing_tds": 3,
+        "completion_percentage": 4,
+        "passer_rating": 3,
+        "carries": 1,
+        "rushing_yards": 6,
+        "rushing_tds": 3,
+        "yards_per_carry": 2,
+        "efficiency": 3,
+        "targets": 1,
+        "receiving_yards": 2,
+        "receiving_tds": 2,
+        "yards_per_reception": 3,
+        "special_teams_tds": 2
+    }
+
     for key in team_stats:
         add = torfstatcompare(team_stats, opponent_stats, key)
-        if key in bad_stats:
-            if key == "interceptions":
-                if add == False:
-                    team_score += 4
-                else:
-                    opponent_score += 4
-            if key == "fumbles":
-                if add == False:
-                    team_score += 3
-                else:
-                    opponent_score += 3
-            if key == "sacks":
-                if add == False:
-                    team_score += 4
-                else:
-                    opponent_score += 4
-            if key == "yards_per_sack":
-                if add == False:
-                    team_score += 2
-                else:
-                    opponent_score += 2
-            if key == "sack_fumbles":
-                if add == False:
-                    team_score += 3
-                else:
-                    opponent_score += 3
-            if key == "sack_yards":
-                if add == False:
-                    team_score += 2
-                else:
-                    opponent_score += 2
-        else:
-            if key == "completions":
-                if add == True:
-                    team_score += 2
-                else:
-                    opponent_score += 2
-            if key == "attempts":
-                if add == True:
-                    team_score += 1
-                else:
-                    opponent_score += 1
-            if key == "passing_yards":
-                if add == True:
-                    team_score += 3
-                else:
-                    opponent_score += 3
-            if key == "passing_tds":
-                if add == True:
-                    team_score += 3
-                else:
-                    opponent_score += 3
-            if key == "completion_percentage":
-                if add == True:
-                    team_score += 4
-                else:
-                    opponent_score += 4
-            if key == "passer_rating":
-                if add == True:
-                    team_score += 3
-                else:
-                    opponent_score += 3
-            if key == "carries":
-                if add == True:
-                    team_score += 1
-                else:
-                    opponent_score += 1
-            if key == "rushing_yards":
-                if add == True:
-                    team_score += 6
-                else:
-                    opponent_score += 6
-            if key == "rushing_tds":
-                if add == True:
-                    team_score += 3
-                else:
-                    opponent_score += 3
-            if key == "yards_per_carry":
-                if add == True:
-                    team_score += 2
-                else:
-                    opponent_score += 2
-            if key == "efficiency":
-                if add == True:
-                    team_score += 3
-                else:
-                    opponent_score += 3
-            if key == "targets":
-                if add == True:
-                    team_score += 1
-                else:
-                    opponent_score += 1
-            if key == "receiving_yards":
-                if add == True:
-                    team_score += 2
-                else:
-                    opponent_score += 2
-            if key == "receiving_tds":
-                if add == True:
-                    team_score += 2
-                else:
-                    opponent_score += 2
-            if key == "yards_per_reception":
-                if add == True:
-                    team_score += 3
-                else:
-                    opponent_score += 3
-            if key == "special_teams_tds":
-                if add == True:
-                    team_score += 2
-                else:
-                    opponent_score += 2
+
+        if key in bad_stat_points:
+            points = bad_stat_points[key]
+            if add is False:
+                team_score += points
+            else:
+                opponent_score += points
+        elif key in good_stat_points:
+            points = good_stat_points[key]
+            if add is True:
+                team_score += points
+            else:
+                opponent_score += points
+
     return team_score, opponent_score
 
 
@@ -259,3 +190,51 @@ def return_winner(team1, team1score, team2, team2score):
         return team2
     else:
         return "TIE"
+
+def run(year, week, team):
+    stats = ["passing", "rushing", "receiving", "sacks", "special"]
+    df = ''
+    rows = []
+
+    team1stat = []
+    team2stat = []
+    if MainFile.return_opponent(year, team, week) == "BYE":
+        rows.append({
+            "team": team,
+            "team_score": None,
+            "opponent": None,
+            "opponent_score": None,
+            "predicted_winner": None
+        })
+    for stat in stats:
+        team1 = gather_previous_weeks(team, year, week, stat)
+        team2 = gather_previous_weeks(MainFile.return_opponent(year, team, week), year, week, stat)
+        team1 = combine(team1)
+        team2 = combine(team2)
+        team1stat.append(team1)
+        team2stat.append(team2)
+
+    team1score = 0
+    team2score = 0
+    for t1, t2 in zip(team1stat, team2stat):
+        t1score, t2score = compare_weeks(t1, t2)
+        team1score += t1score
+        team2score += t2score
+
+
+    team_score = team1score
+    opponent = MainFile.return_opponent(year, team, week)
+    opponent_score = team2score
+    winner = return_winner(team, team_score, opponent, opponent_score)
+
+    rows.append({
+        "team": team,
+        "team_score": team_score,
+        "opponent": opponent,
+        "opponent_score": opponent_score,
+        "predicted_winner": winner
+    })
+
+    df = pd.DataFrame(rows)
+
+    return df

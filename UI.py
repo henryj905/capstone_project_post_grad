@@ -52,7 +52,7 @@ class MainMenu(Screen):
         self.manager.current = "years"
 
     def go_to_predictor(self, instance):
-        self.manager.current = "predictor"
+        self.manager.current = "predictor_main"
 
 
 class YearScreen(Screen):
@@ -173,7 +173,10 @@ class MyApp(App):
         sm.add_widget(PlayerStatsUI.PlayerListScreen(name='player_list'))
         sm.add_widget(PlayerStatsUI.PlayerCompare(name='player_compare'))
         sm.add_widget(PlayerStatsUI.TeamPickPlayer(name='second_team'))
-        sm.add_widget(PredictorUI.PredictorScreen(name="predictor"))
+        sm.add_widget(PredictorUI.PredictorMain(name="predictor_main"))
+        sm.add_widget(PredictorUI.WeekScreen(name='weeks'))
+        sm.add_widget(PredictorUI.LoadTeams(name='teams'))
+        sm.add_widget(PredictorUI.PredictorScreen(name='predictor'))
         return sm
 
 
