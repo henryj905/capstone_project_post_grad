@@ -1,6 +1,4 @@
 import nfl_data_py as nfl
-import pandas as pd
-
 
 weekly_cache = {}
 ngs_cache = {}
