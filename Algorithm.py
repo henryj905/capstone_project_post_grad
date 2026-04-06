@@ -193,7 +193,6 @@ def return_winner(team1, team1score, team2, team2score):
 
 def run(year, week, team):
     stats = ["passing", "rushing", "receiving", "sacks", "special"]
-    df = ''
     rows = []
 
     team1stat = []
