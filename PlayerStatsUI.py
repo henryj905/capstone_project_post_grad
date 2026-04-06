@@ -112,7 +112,7 @@ class PlayerListScreen(Screen):
     def go_back(self, instance):
         self.manager.current = "statistics"
 
-# class ScreenForNone:
+
 class PlayerStatScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -335,10 +335,10 @@ class TeamPickPlayer(Screen):
 
         player_list = self.manager.get_screen("player_list")
 
-        # load directly into player list with SAME stat
+
         player_list.load_team(compare_team, self.selected_year, self.main_stat)
 
-        # enable compare mode
+
         player_list.compare_mode = True
         player_list.main_player = self.main_player
         player_list.main_team = self.main_team
@@ -347,6 +347,4 @@ class TeamPickPlayer(Screen):
         self.manager.current = "player_list"
 
     def go_back(self, instance):
-        self.manager.current = "player_compare"
-    # def pick_next_player(self, instance):
-    #
+        self.manager.current = "player_stats"
