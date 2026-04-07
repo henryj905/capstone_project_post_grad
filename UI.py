@@ -5,8 +5,6 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
-import MainFile
-import OffensivePerTeam
 import PlayerStatsUI
 import PredictorUI
 import TeamStatsUI
@@ -155,7 +153,6 @@ class WhichStatScreen(Screen):
 
     def go_back(self, instance):
         self.manager.current = "statistics"
-
 
 
 class MyApp(App):

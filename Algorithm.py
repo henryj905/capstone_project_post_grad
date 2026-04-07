@@ -310,5 +310,3 @@ def run(year, week, team):
     df = pd.DataFrame(rows)
 
     return df
-
-# print(run(2024, 2, 'WAS'))

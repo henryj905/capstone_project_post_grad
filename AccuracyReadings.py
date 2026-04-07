@@ -6,6 +6,7 @@ import Algorithm
 import ast
 import numpy as np
 
+
 def real_results(year, team_abbr):
     data = nfl.import_schedules([year])
     teams = data[["away_team"]].drop_duplicates().sort_values("away_team")
@@ -66,6 +67,7 @@ def get_predicted_winners(file_name):
     df = pd.read_csv(file_name)
     return df["predicted_winner"].dropna().tolist()
 
+
 def run():
     years = list(range(2021, 2025))
     stats = ["passing", "rushing", "receiving", "sacks", "special"]
@@ -79,7 +81,7 @@ def run():
             if os.path.exists(file_name):
                 print(f"{file_name} already exists, skipping {team}")
                 continue
-            print("Predicting for:",team, year)
+            print("Predicting for:", team, year)
             for week in range(1, 19):
                 team1stat = []
                 team2stat = []
@@ -87,7 +89,8 @@ def run():
                     continue
                 for stat in stats:
                     team1 = Algorithm.gather_previous_weeks(team, year, week, stat)
-                    team2 = Algorithm.gather_previous_weeks(MainFile.return_opponent(year, team, week), year, week, stat)
+                    team2 = Algorithm.gather_previous_weeks(MainFile.return_opponent(year, team, week),
+                                                            year, week, stat)
                     team1 = Algorithm.combine(team1)
                     team2 = Algorithm.combine(team2)
                     team1stat.append(team1)

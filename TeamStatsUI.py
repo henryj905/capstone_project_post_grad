@@ -7,6 +7,7 @@ from kivy.uix.gridlayout import GridLayout
 import MainFile
 import OffensivePerTeam
 
+
 class StatsScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -64,36 +64,3 @@ def team_season(team, year):
         stat_list.append(stat)
 
     return stat_list, num_list
-
-# stats, num  = (team_season('WAS', 2024))
-
-# data = [f"{s:<25}: {n}" for s, n in zip(stats, num)]
-# print(num)
-# for i in data:
-#     print(i)
-# a, b = team_passing_season('WAS', 2024)
-#
-# for i in range(0,len(passing)):
-#     print(a[i], b[i])
-#
-# a, b = team_rushing_season('WAS', 2024)
-#
-# for i in range(0,len(rushing)):
-#     print(a[i], b[i])
-#
-# a, b = team_receiving_season('WAS', 2024)
-#
-# for i in range(0,len(receiving)):
-#     print(a[i], b[i])
-#
-# a, b = team_sacks_season('WAS', 2024)
-#
-# for i in range(0,len(sacks)):
-#     print(a[i], b[i])
-#
-# a, b = team_special_tds_season('WAS', 2024)
-#
-# for i in range(0,len(special)):
-#     print(a[i], b[i])
-
-

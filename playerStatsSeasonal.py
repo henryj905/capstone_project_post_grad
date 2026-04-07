@@ -3,8 +3,9 @@ import pandas as pd
 
 import playerWeeklyStats
 
-weekly_cache= {}
+weekly_cache = {}
 seasonal_cache = {}
+
 
 def get_seasonal_data(year):
     if year not in seasonal_cache:
@@ -16,7 +17,7 @@ def passing_stats_season(year, team, name):
     seasonal_data = get_seasonal_data(year)
     weekly = playerWeeklyStats.get_weekly_data(year)
     weekly = weekly[["player_id", "player_name", "recent_team",
-                                                     "position"]]
+                    "position"]]
     weekly = weekly.drop_duplicates(subset="player_id")
     data = seasonal_data.merge(
         weekly,
@@ -47,6 +48,7 @@ def passing_stats_season(year, team, name):
     return data[["player_name", "recent_team", "position", "passing_yards", "completions", "attempts", "completion_pct",
                  "passing_tds", "interceptions", "passer_rating"]].sort_values("recent_team")
 
+
 def rushing_stats_season(year, team, name):
     seasonal_data = get_seasonal_data(year)
     weekly = playerWeeklyStats.get_weekly_data(year)
@@ -55,7 +57,7 @@ def rushing_stats_season(year, team, name):
 
     efficiency = playerWeeklyStats.get_ngs_data("rushing", year)
     efficiency = efficiency[["player_gsis_id", "efficiency"]]
-    efficiency_avg = round(efficiency.groupby(["player_gsis_id"], as_index=False)["efficiency"].mean(),2)
+    efficiency_avg = round(efficiency.groupby(["player_gsis_id"], as_index=False)["efficiency"].mean(), 2)
     efficiency_sorted = efficiency_avg.sort_values("player_gsis_id")
     efficiency_sorted = efficiency_sorted.rename(columns={"player_gsis_id": "player_id"})
 
@@ -156,6 +158,7 @@ def special_teams_tds_season(year, team, name):
     seasonal_data = seasonal_data[seasonal_data["special_teams_tds"] > 0]
 
     return seasonal_data
+
 
 def return_stats(year, team, name, stat):
     columns = []

@@ -193,7 +193,6 @@ class PlayerStatScreen(Screen):
 
         team_screen.set_year(self.year)
 
-        # pass first player info
         team_screen.main_player = self.player
         team_screen.main_team = self.team
         team_screen.main_stat = self.stat
@@ -335,9 +334,7 @@ class TeamPickPlayer(Screen):
 
         player_list = self.manager.get_screen("player_list")
 
-
         player_list.load_team(compare_team, self.selected_year, self.main_stat)
-
 
         player_list.compare_mode = True
         player_list.main_player = self.main_player

@@ -9,6 +9,7 @@ import threading
 import MainFile
 import Algorithm
 
+
 class PredictorMain(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -46,9 +47,9 @@ class PredictorMain(Screen):
 
         self.manager.current = "weeks"
 
-
     def go_back(self, instance):
         self.manager.current = "main"
+
 
 class WeekScreen(Screen):
     def __init__(self, **kwargs):
@@ -95,6 +96,7 @@ class WeekScreen(Screen):
     def go_back(self, instance):
         self.manager.current = "predictor_main"
 
+
 class LoadTeams(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -125,6 +127,7 @@ class LoadTeams(Screen):
         main_layout.add_widget(back_btn)
 
         self.add_widget(main_layout)
+
     def load_year(self, year):
         self.year = year
 
@@ -213,7 +216,6 @@ class PredictorScreen(Screen):
 
     def display_winner(self):
         self.result_label.text = f"Loading {self.team}..."
-
 
         self.spinner_event = Clock.schedule_interval(self.animate_spinner, 0.1)
 

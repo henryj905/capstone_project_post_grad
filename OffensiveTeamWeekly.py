@@ -1,6 +1,7 @@
 import playerWeeklyStats
 import pandas as pd
 
+
 def team_weekly_stats(team, year, week, stat):
     team = team.upper()
     stat = stat.upper()
@@ -13,7 +14,7 @@ def team_weekly_stats(team, year, week, stat):
         'SPECIAL': playerWeeklyStats.special_tds_weekly
     }
     data = []
-    while week!=0:
+    while week != 0:
         func = data_sets.get(stat)
         function = func(year, week, team)
 
@@ -24,9 +25,9 @@ def team_weekly_stats(team, year, week, stat):
         week -= 1
 
     function = pd.concat(data, ignore_index=True)
-    dict = {}
+    my_dict = {}
     if stat == "PASSING":
-        dict = {
+        my_dict = {
             "passing_yards": "sum",
             "completions": "sum",
             "attempts": "sum",
@@ -35,7 +36,7 @@ def team_weekly_stats(team, year, week, stat):
             "passer_rating": "mean"  # average passer rating
         }
     elif stat == "RUSHING":
-        dict = {
+        my_dict = {
             "carries": "sum",
             "rushing_yards": "sum",
             "rushing_tds": "sum",
@@ -43,23 +44,23 @@ def team_weekly_stats(team, year, week, stat):
             "efficiency": "mean"
         }
     elif stat == "RECEIVING":
-        dict = {
+        my_dict = {
             "receptions": "sum",
             "targets": "sum",
             "receiving_yards": "sum",
             "receiving_tds": "sum",
         }
     elif stat == "SACKS":
-        dict = {
+        my_dict = {
             "sacks": "sum",
             "sack_yards": "sum",
             "sack_fumbles": "sum",
         }
     elif stat == "SPECIAL":
-        dict = {
+        my_dict = {
             "special_teams_tds": "sum"
         }
 
-    function = function.groupby("recent_team", as_index=False).agg(dict)
+    function = function.groupby("recent_team", as_index=False).agg(my_dict)
     function = function[function["recent_team"] == team]
     return function
