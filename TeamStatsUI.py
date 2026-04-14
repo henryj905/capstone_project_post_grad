@@ -4,6 +4,8 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.behaviors import ButtonBehavior
+from kivy.uix.image import Image
 import MainFile
 import OffensivePerTeam
 
@@ -24,8 +26,16 @@ class StatsScreen(Screen):
         teams = MainFile.teams()
 
         for team in teams:
-            btn = Button(text=team, size_hint_y=None, height=60)
-            btn.bind(on_press=self.selected)
+            logo_path = f"Logos/{team}.jpg"
+
+            btn = TeamButtonTeamStats(
+                team=team,
+                image_path=logo_path,
+                callback=self.selected,
+                size_hint_y=None,
+                height=90
+            )
+
             grid.add_widget(btn)
 
         scroll.add_widget(grid)
@@ -38,10 +48,8 @@ class StatsScreen(Screen):
         self.add_widget(main_layout)
 
     def selected(self, instance):
-        selected_team = instance.text
-
         stat_type = self.manager.get_screen("stat_type")
-        stat_type.load_selects(selected_team, self.selected_year)
+        stat_type.load_selects(instance, self.selected_year)
 
         self.manager.current = "stat_type"
 
@@ -212,8 +220,16 @@ class CompareScreen(Screen):
 
         teams = MainFile.teams()
         for team in teams:
-            btn = Button(text=team, size_hint_y=None, height=60)
-            btn.bind(on_press=self.select_team)
+            logo_path = f"Logos/{team}.jpg"
+
+            btn = TeamButtonTeamStats(
+                team=team,
+                image_path=logo_path,
+                callback=self.select_team,
+                size_hint_y=None,
+                height=90
+            )
+
             grid.add_widget(btn)
 
         scroll.add_widget(grid)
@@ -224,7 +240,7 @@ class CompareScreen(Screen):
         self.main_team = team
 
     def select_team(self, instance):
-        compare_team = instance.text
+        compare_team = instance
         stats_screen = self.manager.get_screen("team_stats")
 
         stats_screen.team_name = self.main_team
@@ -234,3 +250,22 @@ class CompareScreen(Screen):
         stats_screen.display_comparison()
 
         self.manager.current = "team_stats"
+
+
+class TeamButtonTeamStats(ButtonBehavior, BoxLayout):
+    def __init__(self, team, image_path, callback, **kwargs):
+        super().__init__(**kwargs)
+
+        self.team = team
+        self.callback = callback
+
+        img = Image(
+            source=image_path,
+            keep_ratio=True,
+            allow_stretch=True
+        )
+
+        self.add_widget(img)
+
+    def on_press(self):
+        self.callback(self.team)

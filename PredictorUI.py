@@ -5,6 +5,8 @@ from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
 from kivy.clock import Clock
+from kivy.uix.behaviors import ButtonBehavior
+from kivy.uix.image import Image
 import threading
 import MainFile
 import Algorithm
@@ -109,14 +111,29 @@ class LoadTeams(Screen):
 
         scroll = ScrollView()
 
-        grid = GridLayout(cols=4, spacing=10, size_hint_y=None)
+        grid = GridLayout(
+            cols=4,
+            spacing=10,
+            size_hint_y=None,
+            row_default_height=90,
+            row_force_default=True
+        )
+
         grid.bind(minimum_height=grid.setter('height'))
 
         teams = MainFile.teams()
 
         for team in teams:
-            btn = Button(text=f"{team}", size_hint_y=None, height=60)
-            btn.bind(on_press=self.load_team)
+            logo_path = f"Logos/{team}.jpg"
+
+            btn = TeamButtonPredictor(
+                team=team,
+                image_path=logo_path,
+                callback=self.load_team,
+                size_hint_y=None,
+                height=90
+            )
+
             grid.add_widget(btn)
 
         scroll.add_widget(grid)
@@ -134,9 +151,7 @@ class LoadTeams(Screen):
     def load_week(self, week):
         self.week = week
 
-    def load_team(self, instance):
-        team = instance.text
-
+    def load_team(self, team):
         stat_screen = self.manager.get_screen("predictor")
         stat_screen.load_team(team)
         stat_screen.load_week(self.week)
@@ -146,6 +161,25 @@ class LoadTeams(Screen):
 
     def go_back(self, instance):
         self.manager.current = "weeks"
+
+
+class TeamButtonPredictor(ButtonBehavior, BoxLayout):
+    def __init__(self, team, image_path, callback, **kwargs):
+        super().__init__(**kwargs)
+
+        self.team = team
+        self.callback = callback
+
+        img = Image(
+            source=image_path,
+            keep_ratio=True,
+            allow_stretch=True
+        )
+
+        self.add_widget(img)
+
+    def on_press(self):
+        self.callback(self.team)
 
 
 class PredictorScreen(Screen):

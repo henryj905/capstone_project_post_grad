@@ -4,6 +4,8 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.behaviors import ButtonBehavior
+from kivy.uix.image import Image
 
 import InLists
 import MainFile
@@ -313,8 +315,16 @@ class TeamPickPlayer(Screen):
         teams = MainFile.teams()
 
         for team in teams:
-            btn = Button(text=team, size_hint_y=None, height=60)
-            btn.bind(on_press=self.second_team)
+            logo_path = f"Logos/{team}.jpg"
+
+            btn = TeamButtonPlayerStats(
+                team=team,
+                image_path=logo_path,
+                callback=self.second_team,
+                size_hint_y=None,
+                height=90
+            )
+
             grid.add_widget(btn)
 
         scroll.add_widget(grid)
@@ -330,7 +340,7 @@ class TeamPickPlayer(Screen):
         self.selected_year = year
 
     def second_team(self, instance):
-        compare_team = instance.text
+        compare_team = instance
 
         player_list = self.manager.get_screen("player_list")
 
@@ -345,3 +355,21 @@ class TeamPickPlayer(Screen):
 
     def go_back(self, instance):
         self.manager.current = "player_stats"
+
+class TeamButtonPlayerStats(ButtonBehavior, BoxLayout):
+    def __init__(self, team, image_path, callback, **kwargs):
+        super().__init__(**kwargs)
+
+        self.team = team
+        self.callback = callback
+
+        img = Image(
+            source=image_path,
+            keep_ratio=True,
+            allow_stretch=True
+        )
+
+        self.add_widget(img)
+
+    def on_press(self):
+        self.callback(self.team)
