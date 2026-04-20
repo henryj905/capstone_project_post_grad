@@ -347,6 +347,6 @@ def special_gather_season(team1, year):
         total_tds = team_df["special_teams_tds"].sum()
 
         team_stats.append({
-            "special_tams_tds": total_tds
+            "special_teams_tds": total_tds
         })
     return team_stats
