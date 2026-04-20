@@ -166,22 +166,19 @@ def run():
                 for x in result_list:
                     real_result_list.append(x)
 
-    print(real_result_list)
-    print(len(real_result_list))
+        right = 0
+        wrong = 0
 
-    right = 0
-    wrong = 0
+        for x, y in zip(guesses, real_result_list):
+            if x == y:
+                right += 1
+            else:
+                wrong += 1
 
-    for x, y in zip(guesses, real_result_list):
-        if x == y:
-            right += 1
-        else:
-            wrong += 1
+        total = right + wrong
 
-    total = right + wrong
-
-    print("right =", right)
-    print("wrong =", wrong)
-    print("percentage =", round(right / total, 2))
+        print("right =", right)
+        print("wrong =", wrong)
+        print("percentage =", round(right / total, 2))
 
 run()

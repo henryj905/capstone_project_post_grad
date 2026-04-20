@@ -194,39 +194,55 @@ class PredictorScreen(Screen):
         self.spinner_states = ["|", "/", "-", "\\"]
         self.spinner_index = 0
 
-        main_layout = BoxLayout(orientation='vertical', padding=20, spacing=15)
+        # MAIN LAYOUT (center everything nicely)
+        main_layout = BoxLayout(
+            orientation='vertical',
+            padding=30,
+            spacing=20
+        )
 
+        # TITLE
         self.title_label = Label(
-            text="Predictor",
-            font_size=30,
-            size_hint=(1, 0.2)
+            text="Game Predictor",
+            font_size=36,
+            bold=True,
+            size_hint=(1, 0.15)
         )
         main_layout.add_widget(self.title_label)
 
+        # RESULT (BIG + CENTERED)
         self.result_label = Label(
-            text=".........",
-            font_size=20,
-            size_hint=(1, 0.2)
+            text="Select inputs to begin",
+            font_size=24,
+            halign="center",
+            valign="middle",
+            size_hint=(1, 0.35)
         )
+        self.result_label.bind(size=self.result_label.setter('text_size'))
         main_layout.add_widget(self.result_label)
 
+        # LOADING TEXT
         self.wait_label = Label(
-            text="The later the week, the longer the wait",
+            text="",
             font_size=16,
-            italic=True,
-            color=(0.5, 0.5, 0.5, 1),
+            color=(0.6, 0.6, 0.6, 1),
             size_hint=(1, 0.1)
         )
         main_layout.add_widget(self.wait_label)
 
+        # SPINNER
         self.spinner_label = Label(
             text="",
-            font_size=40,
+            font_size=50,
             size_hint=(1, 0.2)
         )
         main_layout.add_widget(self.spinner_label)
 
-        back_btn = Button(text="Back", size_hint=(1, 0.2))
+        # BACK BUTTON (kept)
+        back_btn = Button(
+            text="Back",
+            size_hint=(1, 0.15)
+        )
         back_btn.bind(on_press=self.go_back)
         main_layout.add_widget(back_btn)
 
@@ -249,8 +265,8 @@ class PredictorScreen(Screen):
             self.display_winner()
 
     def display_winner(self):
-        self.result_label.text = f"Loading {self.team}..."
-
+        self.result_label.text = f"Predicting {self.team}..."
+        self.wait_label.text = "Processing game data..."
         self.spinner_event = Clock.schedule_interval(self.animate_spinner, 0.1)
 
         threading.Thread(target=self._run_algorithm, daemon=True).start()
@@ -267,11 +283,11 @@ class PredictorScreen(Screen):
         Clock.schedule_once(lambda dt: self.finish_loading(df))
 
     def finish_loading(self, df):
-        # Stop spinner
         if self.spinner_event:
             self.spinner_event.cancel()
 
         self.spinner_label.text = ""
+        self.wait_label.text = ""
 
         self.update_result(df)
 
@@ -289,11 +305,13 @@ class PredictorScreen(Screen):
         winner = row["predicted_winner"]
 
         if opponent is None:
-            self.result_label.text = f"{team} has a BYE week"
+            self.result_label.text = f"{team}\nBYE Week"
         else:
             self.result_label.text = (
-                f"{team} ({team_score}) vs {opponent} ({opponent_score})\n"
-                f"Predicted Winner: {winner}"
+                f"{team} ({team_score})\n"
+                f"vs\n"
+                f"{opponent} ({opponent_score})\n\n"
+                f"Winner: {winner}"
             )
 
     def go_back(self, instance):
