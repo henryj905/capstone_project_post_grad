@@ -350,6 +350,3 @@ def special_gather_season(team1, year):
             "special_teams_tds": total_tds
         })
     return team_stats
-
-
-print('testing, don\'t see me please')
